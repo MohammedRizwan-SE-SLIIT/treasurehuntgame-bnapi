@@ -1,73 +1,77 @@
+// Game Flow with Guest Access and Level Restriction
+
 document.addEventListener("DOMContentLoaded", function () {
-    const loginTab = document.getElementById("login-tab");
-    const registerTab = document.getElementById("register-tab");
-    const loginForm = document.getElementById("login-form");
-    const registerForm = document.getElementById("register-form");
+    let currentLevel = 1;
+    let hearts = 4;
+    let sessionActive = false;
+    let isGuest = false;
+
+    const startGameBtn = document.getElementById("startGame");
+    const gameCanvas = document.getElementById("gameCanvas");
     const messageBox = document.getElementById("message-box");
-
-    // Handle tab switching
-    loginTab.addEventListener("click", function () {
-        loginForm.style.display = "block";
-        registerForm.style.display = "none";
-        loginTab.classList.add("active");
-        registerTab.classList.remove("active");
+    
+    startGameBtn.addEventListener("click", function () {
+        startGame();
     });
 
-    registerTab.addEventListener("click", function () {
-        loginForm.style.display = "none";
-        registerForm.style.display = "block";
-        registerTab.classList.add("active");
-        loginTab.classList.remove("active");
-    });
-
-    // Handle form submission
-    loginForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        const email = document.getElementById("login-email").value;
-        const password = document.getElementById("login-password").value;
-        
-        if (!validateEmail(email) || password.length < 6) {
-            displayMessage("Invalid email or password must be at least 6 characters.", "error");
-            return;
-        }
-
-        // Simulate login request (replace with actual API call)
-        displayMessage("Logging in...", "info");
-        setTimeout(() => {
-            displayMessage("Login successful! Redirecting...", "success");
-            window.location.href = "../dashboard.html"; // Redirect on success
-        }, 2000);
-    });
-
-    registerForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        const email = document.getElementById("register-email").value;
-        const password = document.getElementById("register-password").value;
-        const confirmPassword = document.getElementById("confirm-password").value;
-        
-        if (!validateEmail(email) || password.length < 6 || password !== confirmPassword) {
-            displayMessage("Invalid email or passwords do not match.", "error");
-            return;
-        }
-
-        // Simulate registration request (replace with actual API call)
-        displayMessage("Registering...", "info");
-        setTimeout(() => {
-            displayMessage("Registration successful! Redirecting to login...", "success");
-            setTimeout(() => loginTab.click(), 1500); // Switch to login tab
-        }, 2000);
-    });
-
-    // Helper functions
-    function validateEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    function startGame() {
+        sessionActive = true;
+        showMessage("Level 1: Let the treasure hunt begin!", "info");
+        loadLevel(currentLevel);
     }
 
-    function displayMessage(message, type) {
+    function loadLevel(level) {
+        if (isGuest && level > 2) {
+            showGuestPrompt();
+        } else {
+            fetchMathChallenge(level);
+        }
+    }
+
+    function fetchMathChallenge(level) {
+        showMessage(`Fetching challenge for Level ${level}...`, "info");
+        // Simulate API call (replace with actual Banana API integration)
+        setTimeout(() => {
+            showMessage(`Solve the puzzle to find the treasure!`, "success");
+            // Render question (dummy example)
+            gameCanvas.innerHTML = `<p>Solve: 5 + 3 = ?</p>`;
+        }, 1000);
+    }
+
+    function showGuestPrompt() {
+        gameCanvas.innerHTML = `
+            <div class="guest-prompt">
+                <h2>You’re on a roll! 🎉</h2>
+                <p>Want to keep the treasure hunt going? Log in to continue your adventure and unlock more levels, rewards, and surprises!</p>
+                <button onclick="redirectToLogin()">Log In / Register</button>
+                <button onclick="endSession()">End Game</button>
+            </div>
+        `;
+    }
+
+    function redirectToLogin() {
+        window.location.href = "auth.html";
+    }
+
+    function endSession() {
+        sessionActive = false;
+        showMessage("Game Over. Come back anytime!", "error");
+    }
+
+    function showMessage(message, type) {
         messageBox.textContent = message;
-        messageBox.className = "message " + type;
+        messageBox.className = `message ${type}`;
     }
 
-    // Initialize default tab
-    loginTab.click();
+    // Initialize guest session
+    function startGuestSession() {
+        isGuest = true;
+        showMessage("Welcome, Guest! You can play until Level 2.", "info");
+        startGame();
+    }
+
+    window.startGuestSession = startGuestSession;
+    window.redirectToLogin = redirectToLogin;
 });
+
+// Let me know if you want me to refine the UI or extend this flow! 🚀

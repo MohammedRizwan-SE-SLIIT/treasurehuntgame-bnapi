@@ -1,150 +1,101 @@
-/* Game-Themed Background */
 body {
-    font-family: 'Press Start 2P', cursive; /* Retro Game Font */
-    background: linear-gradient(to right, #121212, #1e1e1e);
-    color: #fff;
+    background: linear-gradient(135deg, #2b1055, #7597de);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Auth Container */
 .auth-container {
-    width: 400px;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.7);
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 255, 150, 0.5);
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    width: 400px;
     text-align: center;
 }
 
-/* Tab Styling */
-.auth-tabs {
+.tab-container {
     display: flex;
     justify-content: space-around;
     margin-bottom: 20px;
 }
 
-.auth-tab {
-    flex: 1;
-    padding: 10px;
+.tab {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
-    text-transform: uppercase;
+    background: #f39c12;
     color: #fff;
-    background: linear-gradient(to right, #00ff99, #009966);
-    border: none;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
-
-.auth-tab:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 255, 150, 0.7);
-}
-
-.auth-tab.active {
-    background: #00cc88;
-    box-shadow: 0 0 15px rgba(0, 255, 150, 1);
-}
-
-/* Form Styling */
-.auth-form {
-    /* display: none; */ /*Old*/
-    display: flex; 
-     flex-direction: column;
-    align-items: center; /*Centers input fields*/
-    justify-content: center;
-}
-
-.auth-form input {
-    /* width: 100%;
-    padding: 10px;
-    margin: 10px 0; */
-    width: 90%; /* Adjust width instead of using negative margins */
-    padding: 12px;
-    margin: 8px 0;
-    text-align: center;
-    border: 2px solid #00ff99;
-    background: #222;
-    color: #fff;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: border 0.3s;
-}
-
-.auth-form input:focus {
-    border: 2px solid #00cc88;
-    box-shadow: 0 0 8px rgba(0, 255, 150, 0.8);
-}
-
-/* Buttons */
-.auth-form button {
-    width: 100%;
-    padding: 12px;
-    background: #00ff99;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
     font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
+    transition: 0.3s ease;
 }
 
-.auth-form button:hover {
-    background: #00cc88;
-    box-shadow: 0 0 10px rgba(0, 255, 150, 1);
+.tab.active {
+    background: #e74c3c;
 }
 
-/* Google Sign-In Button */
-.google-btn {
-    width: 100%;
-    padding: 12px;
-    background: #db4437;
-    border: none;
-    color: white;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.google-btn:hover {
-    background: #c1351d;
-    box-shadow: 0 0 10px rgba(255, 66, 66, 0.8);
-}
-
-/* Message Box */
-.message {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 14px;
+.form-container {
     display: none;
 }
 
-.message.success {
-    background: rgba(0, 255, 0, 0.3);
-    border: 2px solid #00ff99;
-    animation: fadeIn 0.5s ease-in-out;
+input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
 }
 
-.message.error {
-    background: rgba(255, 0, 0, 0.3);
-    border: 2px solid #ff3333;
-    animation: fadeIn 0.5s ease-in-out;
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #27ae60;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+button:hover {
+    background: #2ecc71;
+}
+
+.google-btn {
+    background: #db4437;
+    margin-top: 10px;
+}
+
+.google-btn:hover {
+    background: #e57373;
+}
+
+#guest-btn {
+    background: #f39c12;
+}
+
+#guest-btn:hover {
+    background: #e67e22;
+}
+
+.message-box {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: none;
+}
+
+.message-box.success {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.message-box.error {
+    background: #e74c3c;
+    color: #fff;
 }
