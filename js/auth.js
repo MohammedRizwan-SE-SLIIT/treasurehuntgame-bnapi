@@ -1,5 +1,3 @@
-// Game Flow with Guest Access and Level Restriction
-
 document.addEventListener("DOMContentLoaded", function () {
     let currentLevel = 1;
     let hearts = 4;
@@ -28,14 +26,44 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function fetchMathChallenge(level) {
-        showMessage(`Fetching challenge for Level ${level}...`, "info");
-        // Simulate API call (replace with actual Banana API integration)
-        setTimeout(() => {
-            showMessage(`Solve the puzzle to find the treasure!`, "success");
-            // Render question (dummy example)
-            gameCanvas.innerHTML = `<p>Solve: 5 + 3 = ?</p>`;
-        }, 1000);
+    async function fetchMathChallenge(level) {
+        try {
+            showMessage(`Fetching challenge for Level ${level}...`, "info");
+
+            // Call Banana API to fetch math challenge (example URL; modify based on actual endpoint)
+            const response = await fetch(`https://marcconrad.com/uob/banana/api.php?level=${level}`);
+            const data = await response.json();
+
+            if (data.challenge) {
+                showMessage(`Solve this puzzle to find the treasure!`, "success");
+                gameCanvas.innerHTML = `<p>Solve: ${data.challenge}</p>`;
+                handleChallengeAnswer(data.answer, level);
+            } else {
+                showMessage("No challenge found. Try again later.", "error");
+            }
+        } catch (error) {
+            showMessage("Error fetching the challenge. Try again later.", "error");
+        }
+    }
+
+    function handleChallengeAnswer(correctAnswer, level) {
+        // Assume the user is solving the puzzle here (simple example)
+        // In a real scenario, you would get input from the user (e.g., a form, button clicks, etc.)
+
+        let userAnswer = prompt("Enter your answer:");
+        if (parseInt(userAnswer) === correctAnswer) {
+            showMessage("Correct! You've completed the level.", "success");
+            currentLevel++;
+            loadLevel(currentLevel); // Proceed to next level
+        } else {
+            hearts--;
+            if (hearts > 0) {
+                showMessage(`Wrong answer! You have ${hearts} hearts left. Try again.`, "error");
+            } else {
+                showMessage("Game Over! You've run out of hearts.", "error");
+                endSession();
+            }
+        }
     }
 
     function showGuestPrompt() {
@@ -73,5 +101,3 @@ document.addEventListener("DOMContentLoaded", function () {
     window.startGuestSession = startGuestSession;
     window.redirectToLogin = redirectToLogin;
 });
-
-// Let me know if you want me to refine the UI or extend this flow! 🚀

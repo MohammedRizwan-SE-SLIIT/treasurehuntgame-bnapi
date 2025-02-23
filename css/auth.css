@@ -63,6 +63,7 @@ button {
 
 button:hover {
     background: #2ecc71;
+    transform: scale(1.05);  /* Slight scaling for hover effect */
 }
 
 .google-btn {
@@ -72,6 +73,7 @@ button:hover {
 
 .google-btn:hover {
     background: #e57373;
+    transform: scale(1.05);
 }
 
 #guest-btn {
@@ -80,6 +82,7 @@ button:hover {
 
 #guest-btn:hover {
     background: #e67e22;
+    transform: scale(1.05);
 }
 
 .message-box {
@@ -99,3 +102,35 @@ button:hover {
     background: #e74c3c;
     color: #fff;
 }
+
+.guest-access {
+    margin-top: 20px;
+}
+
+.guest-prompt {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.guest-prompt h2 {
+    color: #fff;
+    font-size: 24px;
+}
+
+.guest-prompt button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #27ae60;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.guest-prompt button:hover {
+    background: #2ecc71;
+    transform: scale(1.05);
+}
+
