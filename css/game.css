@@ -1,0 +1,12 @@
+#treasure-chest {
+    display: none; /* Initially hidden */
+    position: absolute;
+    top: 50%; /* Position it in the middle */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+}
+
+#treasure-chest.hidden {
+    display: none; /* Keep it hidden */
+}
