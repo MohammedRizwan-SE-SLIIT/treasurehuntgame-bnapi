@@ -9,93 +9,50 @@ body {
 }
 
 .auth-container {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 400px;
     text-align: center;
+}
+
+.logo {
+    width: 80px;
+    margin-bottom: 20px;
 }
 
 .tab-container {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 20px;
 }
 
 .tab {
     padding: 10px 20px;
-    border: none;
     border-radius: 5px;
     cursor: pointer;
-    background: #f39c12;
-    color: #fff;
-    font-weight: bold;
-    transition: 0.3s ease;
+    background-color: #f39c12;
+    color: white;
 }
 
 .tab.active {
-    background: #e74c3c;
+    background-color: #e74c3c;
 }
 
 .form-container {
-    display: none;
+    display: none; /* Hidden by default */
+}
+
+.form-container:not(.hidden) {
+    display: block; /* Show active form */
 }
 
 input {
     width: calc(100% - 20px);
     padding: 10px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 5px;
+    margin-bottom: 15px;
 }
 
 button {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background: #27ae60;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-button:hover {
-    background: #2ecc71;
-}
-
-.google-btn {
-    background: #db4437;
-    margin-top: 10px;
-}
-
-.google-btn:hover {
-    background: #e57373;
-}
-
-#guest-btn {
-    background: #f39c12;
-}
-
-#guest-btn:hover {
-    background: #e67e22;
-}
-
-.message-box {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    display: none;
-}
-
-.message-box.success {
-    background: #2ecc71;
-    color: #fff;
-}
-
-.message-box.error {
-    background: #e74c3c;
-    color: #fff;
+    width: calc(100% - 20px);
 }

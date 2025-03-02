@@ -3,15 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treasure Hunt Game</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>The Hunt for Numbers</title>
+    <link rel="stylesheet" href="../css/game.css">
+    <link rel="stylesheet" href="../css/animations.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1>Treasure Hunt</h1>
-        <button id="startGame">Start Game</button>
-        <canvas id="gameCanvas"></canvas>
+    <div id="game-container">
+        <header>
+            <h1>The Hunt for Numbers</h1>
+            <div id="level-info">Level: 1</div>
+            <div id="timer">Time Left: 60s</div>
+        </header>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas"></canvas>
+            <div id="question-box">
+                <img id="math-image" src="" alt="Math Problem">
+                <input type="text" id="answer-input" placeholder="Enter your answer...">
+                <button id="submit-answer">Submit</button>
+            </div>
+        </div>
+
+        <div class="game-feedback">
+            <p id="feedback-message"></p>
+        </div>
+        
+        <div id="treasure-chest" class="hidden">
+            <img src="../assets/treasure.png" alt="Treasure Chest">
+        </div>
+
+        <div id="leaderboard" class="hidden">
+            <h2>Leaderboard</h2>
+            <ul id="leaderboard-list"></ul>
+        </div>
+
+        <footer>
+            <div id="lives">Hearts: ❤❤❤❤</div>
+            <button id="view-leaderboard">Leaderboard</button>
+        </footer>
     </div>
-    <script src="js/game.js"></script>
+
+    <audio id="correct-sound" src="../assets/correct.mp3"></audio>
+    <audio id="wrong-sound" src="../assets/wrong.mp3"></audio>
+    <audio id="treasure-sound" src="../assets/treasure.mp3"></audio>
+    <audio id="trap-sound" src="../assets/trap.mp3"></audio>
+    
+    <script src="../js/game.js"></script>
+
+         <!-- 270225 Update -->
+         <div id="leaderboard-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Leaderboard 🏆</h2>
+                <ul id="leaderboard-list"></ul>
+                <button id="next-level-btn">Next Level ➡️</button>
+                <button id="close-leaderboard-btn">Close ❌</button>
+            </div>
+        </div>
+<!--  -->
+
+   <!-- 270225 Update -->
+   <button id="view-leaderboard">View Leaderboard</button>
+   <!--  -->
+      
 </body>
 </html>
