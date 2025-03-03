@@ -56,3 +56,8 @@ input {
 button {
     width: calc(100% - 20px);
 }
+
+/* Google Button */
+.google-btn {
+    background-color: #db4437 !important;
+}
