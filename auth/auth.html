@@ -19,35 +19,39 @@
             <button id="register-tab" class="tab">Register</button>
         </div>
 
-        <!-- Login Form -->
-        <div id="login-form" class="form-container">
-            <h2>Login</h2>
+
+
+               <!-- Login Form -->
+    <div id="login-form" class="form-container">
+        <h2>Login</h2>
+        <form id="loginForm">
             <input type="text" id="login-username" placeholder="Enter your username" required>
             <input type="password" id="login-password" placeholder="Enter your password" required>
-            <button id="login-btn">Login</button>
-
-            <!-- Google Sign-In Button -->
-            <div id="g_id_onload"
-                data-client_id="920001052636-2licjcmm9iu1oeq8ntpq5jjet1meksgh.apps.googleusercontent.com"
-                data-context="signin"
-                data-ux_mode="popup"
-                data-login_uri="http://localhost/treasurehuntgame-bnapi/php/auth.php"
-                data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin"></div>
+            <button type="submit" id="login-btn">Login</button>
+        </form>
+        <!-- Google Sign-In Button -->
+        <div id="g_id_onload"
+            data-client_id="920001052636-2licjcmm9iu1oeq8ntpq5jjet1meksgh.apps.googleusercontent.com"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-login_uri="http://localhost/treasurehuntgame-bnapi/php/auth.php"
+            data-auto_prompt="false">
         </div>
+        <div class="g_id_signin"></div>
+    </div>
 
-        <!-- Registration Form -->
-        <div id="register-form" class="form-container hidden">
-            <h2>Register</h2>
+    <!-- Registration Form -->
+    <div id="register-form" class="form-container hidden">
+        <h2>Register</h2>
+        <form id="registerForm">
             <input type="text" id="register-username" placeholder="Enter your username" required>
             <input type="email" id="register-email" placeholder="Enter your email" required>
             <input type="password" id="register-password" placeholder="Create a password" required>
             <button type="button" id="suggest-password">Suggest Strong Password</button>
             <input type="password" id="confirm-password" placeholder="Confirm your password" required>
-            <button type="submit" class="register-btn">Register</button>
-        </div>
-            
+            <button type="submit" id="register-btn">Register</button>
+        </form>
+    </div>
         <!-- Pirate Persona Creation Form -->
         <div id="pirate-persona-form" class="form-container hidden">
             <h2>Set Up Your Pirate Persona</h2>
