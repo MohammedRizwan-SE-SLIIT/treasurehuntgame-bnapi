@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
         clearMessage();
     }
 
+    // Show the Login form by default
+    switchTab('login');
+
     // Login functionality
     document.getElementById("login-btn").addEventListener("click", () => {
         const username = document.getElementById("login-username").value.trim();
@@ -36,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Backend call to authenticate user
-
         if (username === "testuser" && password === "1234") {
             localStorage.setItem("guestMode", "false");
             localStorage.setItem("username", username);
@@ -97,55 +99,62 @@ document.addEventListener("DOMContentLoaded", function () {
         messageBox.style.display = 'none';
     }
 
+    // Initialize Google Sign-In after the DOM content is loaded
+    window.onload = function () {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleSignIn, // Callback function for successful sign-in
+        });
 
-     // Initialize Google Sign-In
-     google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleSignIn, // Callback function for successful sign-in
-    });
+        // Render Google Sign-In button for Login and Register
+        google.accounts.id.renderButton(
+            document.querySelector('.g_id_signin'), // Target container for the button
+            {
+                theme: "outline",        // Button theme (outline or filled)
+                size: "large",           // Size of the button (small, medium, large)
+                type: "standard",        // Button type (standard or icon-only)
+                shape: "pill",           // Shape of the button (rectangular or pill-shaped)
+                width: "300px"           // Custom width for the button
+            }
+        );
 
-    // Render Google Sign-In button
-    google.accounts.id.renderButton(
-        document.getElementById("google-login-btn"), // Button element ID
-        {
-            theme: "outline",
-            size: "large",
-        }
-    );
-
-    google.accounts.id.prompt(); // Automatically prompt users to sign in
+        google.accounts.id.prompt(); // Automatically prompt users to sign in
+    };
 
     /**
      * Handle Google Sign-In Response
      * @param {Object} response - The response object from Google Sign-In.
      */
+
     function handleGoogleSignIn(response) {
         console.log("Encoded JWT ID token: " + response.credential);
-
-        // Send the token to your backend for validation (optional)
-        fetch("../php/auth.php", {
+    
+        // Send token to backend for validation
+        fetch("http://localhost/treasurehuntgame-bnapi/php/auth.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: response.credential }),
+            body: JSON.stringify({ token: response.credential }), // Send the Google ID token
         })
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    // Successfully authenticated
+                    // Store user data locally or in session
                     localStorage.setItem("guestMode", "false");
                     localStorage.setItem("username", data.username || "Google User");
-                    alert(`Welcome, ${data.username || "Google User"}!`);
-                    window.location.href = "../game/game.html"; // Redirect to game page
+    
+                    // Redirect to the game page after successful sign-in
+                    window.location.href = data.redirect || '../game/game.html'; // Use redirect URL returned from the backend
                 } else {
-                    // Authentication failed
-                    alert("Authentication failed. Please try again.");
+                    showMessage("Authentication failed! Please try again.", "error");
                 }
             })
             .catch((error) => {
                 console.error("Error during authentication:", error);
-                alert("An error occurred. Please try again.");
+                showMessage("An error occurred. Please try again.", "error");
             });
     }
+
+
+
+
 });
-
-

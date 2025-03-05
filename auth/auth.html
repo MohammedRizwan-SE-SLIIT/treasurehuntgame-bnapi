@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Hunt for Numbers - Login/Register</title>
     <link rel="stylesheet" href="../css/auth.css">
+        
+    <!-- Google Sign-In Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="auth-container">
@@ -24,12 +27,12 @@
             <input type="password" id="login-password" placeholder="Enter your password" required>
             <button id="login-btn">Login</button>
 
-            <!-- Google Sign-In Button -->
+            <!-- Google Sign-In Button for Login -->
             <div id="g_id_onload"
                  data-client_id="920001052636-2licjcmm9iu1oeq8ntpq5jjet1meksgh.apps.googleusercontent.com"
                  data-context="signin"
                  data-ux_mode="popup"
-                 data-login_uri="http://localhost/treasurehuntgame-bnapi/game/game.html"
+                 data-login_uri="http://localhost/treasurehuntgame-bnapi/auth/auth.html"
                  data-auto_prompt="false">
             </div>
             <div class="g_id_signin" data-type="standard"></div>
@@ -43,6 +46,9 @@
             <input type="password" id="register-password" placeholder="Create a password" required>
             <input type="password" id="confirm-password" placeholder="Confirm your password" required>
             <button id="register-btn">Register</button>
+
+            <!-- Google Sign-In Button for Register -->
+            <div class="g_id_signin"></div>
         </div>
 
         <!-- Guest Access -->
@@ -55,8 +61,6 @@
         <div id="message-box"></div>
     </div>
 
-    <!-- Google Sign-In Library -->
     <script src="../js/auth.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>
