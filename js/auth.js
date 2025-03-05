@@ -25,6 +25,24 @@ document.addEventListener("DOMContentLoaded", function () {
         clearMessage();
     }
 
+    function generateStrongPassword() {
+        const length = 12;
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=";
+        let password = "";
+        for (let i = 0, n = charset.length; i < length; ++i) {
+            password += charset.charAt(Math.floor(Math.random() * n));
+        }
+        return password;
+    }
+
+    // Suggest a strong password for registration
+    document.getElementById("suggest-password").addEventListener("click", function() {
+        const newPassword = generateStrongPassword();
+        document.getElementById("register-password").value = newPassword;
+        document.getElementById("confirm-password").value = newPassword;
+    });
+    
+
     // Show the Login form by default
     switchTab('login');
 
@@ -37,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showMessage("Please fill in all fields.", "error");
             return;
         }
+        
 
         // Backend call to authenticate user
         if (username === "testuser" && password === "1234") {
