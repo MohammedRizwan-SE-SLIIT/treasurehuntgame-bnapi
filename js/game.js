@@ -1,4 +1,3 @@
-
 // game.js (Expert-level implementation with version control, event-driven programming, third-party integration, and secure authentication)
 
 const apiUrl = 'https://marcconrad.com/uob/banana/';
@@ -31,8 +30,8 @@ const closeLeaderboardButton = document.getElementById("close-leaderboard-btn");
 async function fetchMathProblem(difficulty = level, useBase64 = false) {
     try {
         const apiUrl = useBase64 
-            ? 'https://cors-anywhere.herokuapp.com/http://marcconrad.com/uob/banana/api.php?out=json&base64=yes'
-            : 'https://cors-anywhere.herokuapp.com/http://marcconrad.com/uob/banana/api.php?out=json';
+            ? 'https://marcconrad.com/uob/banana/api.php?out=json&base64=yes'
+            : 'https://marcconrad.com/uob/banana/api.php?out=json';
         
         const response = await fetch(apiUrl);
         const data = await response.json();
@@ -51,12 +50,12 @@ async function fetchMathProblem(difficulty = level, useBase64 = false) {
             feedbackMessage.textContent = 'Solve this question to continue!';
             feedbackMessage.className = 'info';
         } else {
-            feedbackMessage.textContent = 'No challenge found. Try again later.';
-            feedbackMessage.className = 'error';
+            throw new Error('Invalid API response');
         }
     } catch (error) {
         feedbackMessage.textContent = 'Error fetching challenge. Try again later.';
         feedbackMessage.className = 'error';
+        console.error('Error fetching math problem:', error);
     }
 }
 

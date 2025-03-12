@@ -1,141 +1,59 @@
 <?php
-session_start();
+// Set the necessary headers to enable communication between the main window and the popup window
+header("Cross-Origin-Opener-Policy: same-origin");
+header("Cross-Origin-Embedder-Policy: require-corp");
 
-// Database configuration
-$host = 'localhost';        // Database host
-$dbname = 'treasurehunt';   // Database name
-$user = 'root';             // Database user
-$pass = '';                 // Database password (leave blank for default)
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
-
-// Function to securely register a new user
-function registerUser($pdo, $username, $email, $password) {
-    // Generate a unique salt
-    $salt = bin2hex(random_bytes(16));
-
-    // Hash the password with the salt
-    $hashedPassword = password_hash($password . $salt, PASSWORD_DEFAULT);
-
-    // Insert user into the database
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, salt) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$username, $email, $hashedPassword, $salt]);
-
-    // Return the user ID of the newly registered user
-    return $pdo->lastInsertId();
-}
-
-// Function to securely verify a user's password during login
-function verifyPassword($pdo, $username, $password) {
-    // Retrieve user data from the database
-    $stmt = $pdo->prepare("SELECT id, password, salt FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
-
-    // If user exists and password matches
-    if ($user && password_verify($password . $user['salt'], $user['password'])) {
-        return $user['id']; // Return user ID upon successful login
-    }
-
-    return false; // Return false if login fails
-}
-
-// Function to create or update virtual identity
-function saveVirtualIdentity($pdo, $userId, $displayName, $avatarUrl) {
-    // Check if the user already has a virtual identity
-    $stmt = $pdo->prepare("SELECT id FROM virtual_identity WHERE user_id = ?");
-    $stmt->execute([$userId]);
-    $identity = $stmt->fetch();
-
-    if ($identity) {
-        // Update existing virtual identity
-        $stmt = $pdo->prepare("UPDATE virtual_identity SET display_name = ?, avatar_url = ? WHERE user_id = ?");
-        $stmt->execute([$displayName, $avatarUrl, $userId]);
-    } else {
-        // Create new virtual identity
-        $stmt = $pdo->prepare("INSERT INTO virtual_identity (user_id, display_name, avatar_url) VALUES (?, ?, ?)");
-        $stmt->execute([$userId, $displayName, $avatarUrl]);
-    }
-}
-
-// Handle requests
+// Validate Google ID Token
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (isset($input['token'])) {
+        $token = $input['token'];
 
-    switch ($action) {
-        case 'register':
-            // Retrieve registration data
-            $username = $_POST['register-username'] ?? '';
-            $email = $_POST['register-email'] ?? '';
-            $password = $_POST['register-password'] ?? '';
+        // Use cURL to verify the token with Google's API
+        $url = "https://oauth2.googleapis.com/tokeninfo?id_token=" . $token;
 
-            if (empty($username) || empty($email) || empty($password)) {
-                echo json_encode(['success' => false, 'error' => 'All fields are required.']);
-                exit;
-            }
+        // Initialize cURL session
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); // Enable SSL verification
 
-            // Register the new user
-            $userId = registerUser($pdo, $username, $email, $password);
-            
-            // Start the session and store user info
-            $_SESSION['userId'] = $userId;
-            $_SESSION['username'] = $username;
+        $response = curl_exec($ch);
 
-            echo json_encode(['success' => true, 'userId' => $userId, 'message' => 'Registration successful. Please create your virtual identity.']);
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            $error_msg = curl_error($ch);
+            curl_close($ch);
+            echo json_encode(['success' => false, 'error' => 'cURL error: ' . $error_msg]);
             exit;
+        }
 
-        case 'login':
-            // Retrieve login data
-            $username = $_POST['login-username'] ?? '';
-            $password = $_POST['login-password'] ?? '';
+        curl_close($ch);
 
-            if (empty($username) || empty($password)) {
-                echo json_encode(['success' => false, 'error' => 'Please fill in all fields.']);
-                exit;
-            }
+        // Check if response is valid and decode it
+        $data = json_decode($response, true);
 
-            // Verify password
-            $userId = verifyPassword($pdo, $username, $password);
+        if ($data && isset($data['email'])) {
+            // Token is valid; set session or other user data here
+            session_start();
+            $_SESSION['username'] = $data['name']; // Example: Store username in session
 
-            if ($userId) {
-                // Start the session and store user info
-                $_SESSION['userId'] = $userId;
-                $_SESSION['username'] = $username;
-                
-                // Return the user ID and the success indicator
-                echo json_encode(['success' => true, 'userId' => $userId, 'message' => 'Login successful. Please create your virtual identity.']);
-                exit;
-            } else {
-                // Invalid credentials
-                echo json_encode(['success' => false, 'error' => 'Invalid username or password.']);
-                exit;
-            }
-        case 'create_identity':
-            // Verify that the user is logged in
-            if (!isset($_SESSION['userId'])) {
-                echo json_encode(['success' => false, 'error' => 'User not logged in']);
-                exit;
-            }
-            
-            // Get data from POST request
-            $userId = $_SESSION['userId'];
-            $displayName = $_POST['displayName'] ?? '';
-            $avatarUrl = $_POST['avatarUrl'] ?? '';
-
-            // Save the virtual identity to the database
-            saveVirtualIdentity($pdo, $userId, $displayName, $avatarUrl);
-
-            // Return the redirect URL after successful validation
-            echo json_encode(['success' => true, 'redirect' => '/treasurehuntgame-bnapi/game/game.html']);
+            // Return the redirect URL after successful authentication
+            $redirectURL = '/treasurehuntgame-bnapi/game/game.html'; // Ensure this path is correct for your app
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'redirect' => $redirectURL]);
             exit;
-      default:
-            echo json_encode(['success' => false, 'error' => 'Invalid action']);
+        } else {
+            // Token is invalid or error occurred
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Invalid token']);
             exit;
+        }
+    } else {
+        // Token is not set in the request
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => 'No token provided']);
+        exit;
     }
 }
 ?>
