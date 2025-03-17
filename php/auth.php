@@ -1,59 +1,125 @@
 <?php
-// Set the necessary headers to enable communication between the main window and the popup window
-header("Cross-Origin-Opener-Policy: same-origin");
-header("Cross-Origin-Embedder-Policy: require-corp");
 
-// Validate Google ID Token
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+session_start();
+
+require 'vendor/autoload.php'; // Include the JWT library
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+$host = 'localhost';
+$dbname = 'treasurehunt';
+$user = 'root';
+$pass = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+
+$secretKey = '5982ffcceb7bd37de639e651f7308a4a7749545bc1fbff57d34fe15eb3b83bac'; // Replace with a strong secret key
+
+function generateJWT($userId, $username) {
+    global $secretKey;
+    $payload = [
+        'userId' => $userId,
+        'username' => $username,
+        'iat' => time(),
+        'exp' => time() + 3600 // Token expires in 1 hour
+    ];
+    return JWT::encode($payload, $secretKey, 'HS256');
+}
+
+function verifyJWT($token) {
+    global $secretKey;
+    try {
+        $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
+        return $decoded;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+function registerUser($pdo, $username, $email, $password) {
+    $salt = bin2hex(random_bytes(16));
+    $hashedPassword = password_hash($password . $salt, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, salt) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$username, $email, $hashedPassword, $salt]);
+    return $pdo->lastInsertId();
+}
+
+function verifyPassword($pdo, $username, $password) {
+    $stmt = $pdo->prepare("SELECT id, password, salt FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+    if ($user && password_verify($password . $user['salt'], $user['password'])) {
+        return $user['id'];
+    }
+    return false;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (isset($input['token'])) {
-        $token = $input['token'];
+    $action = $input['action'] ?? '';
 
-        // Use cURL to verify the token with Google's API
-        $url = "https://oauth2.googleapis.com/tokeninfo?id_token=" . $token;
+    switch ($action) {
+        case 'register':
+            $username = $input['username'] ?? '';
+            $email = $input['email'] ?? '';
+            $password = $input['password'] ?? '';
 
-        // Initialize cURL session
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); // Enable SSL verification
+            if (empty($username) || empty($email) || empty($password)) {
+                echo json_encode(['success' => false, 'error' => 'All fields are required.']);
+                exit;
+            }
 
-        $response = curl_exec($ch);
+            $userId = registerUser($pdo, $username, $email, $password);
+            $token = generateJWT($userId, $username);
 
-        // Check for cURL errors
-        if (curl_errno($ch)) {
-            $error_msg = curl_error($ch);
-            curl_close($ch);
-            echo json_encode(['success' => false, 'error' => 'cURL error: ' . $error_msg]);
+            $_SESSION['userId'] = $userId;
+            $_SESSION['username'] = $username;
+
+            echo json_encode(['success' => true, 'userId' => $userId, 'token' => $token, 'message' => 'Registration successful.']);
             exit;
-        }
 
-        curl_close($ch);
+        case 'login':
+            $username = $input['username'] ?? '';
+            $password = $input['password'] ?? '';
 
-        // Check if response is valid and decode it
-        $data = json_decode($response, true);
+            if (empty($username) || empty($password)) {
+                echo json_encode(['success' => false, 'error' => 'Please fill in all fields.']);
+                exit;
+            }
 
-        if ($data && isset($data['email'])) {
-            // Token is valid; set session or other user data here
-            session_start();
-            $_SESSION['username'] = $data['name']; // Example: Store username in session
+            $userId = verifyPassword($pdo, $username, $password);
 
-            // Return the redirect URL after successful authentication
-            $redirectURL = '/treasurehuntgame-bnapi/game/game.html'; // Ensure this path is correct for your app
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'redirect' => $redirectURL]);
+            if ($userId) {
+                $token = generateJWT($userId, $username);
+
+                $_SESSION['userId'] = $userId;
+                $_SESSION['username'] = $username;
+
+                echo json_encode(['success' => true, 'userId' => $userId, 'token' => $token, 'message' => 'Login successful.']);
+                exit;
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Invalid username or password.']);
+                exit;
+            }
+
+        default:
+            echo json_encode(['success' => false, 'error' => 'Invalid action']);
             exit;
-        } else {
-            // Token is invalid or error occurred
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'error' => 'Invalid token']);
-            exit;
-        }
-    } else {
-        // Token is not set in the request
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'error' => 'No token provided']);
-        exit;
     }
 }
 ?>
