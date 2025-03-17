@@ -1,5 +1,3 @@
-// game.js (Expert-level implementation with version control, event-driven programming, third-party integration, and secure authentication)
-
 const apiUrl = 'https://marcconrad.com/uob/banana/';
 let level = 1;
 let hearts = 4;

@@ -5,6 +5,10 @@ header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
@@ -12,12 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 session_start();
 
-require 'vendor/autoload.php'; // Include the JWT library
+$autoloadPath = realpath(__DIR__ . '/../vendor/autoload.php');
+if (!$autoloadPath) {
+    error_log("Error: autoload.php not found at expected path.");
+    die(json_encode(['success' => false, 'error' => 'Server configuration error.']));
+}
+require $autoloadPath; // Dynamically resolved path to autoload.php
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 $host = 'localhost';
-$dbname = 'treasurehunt';
+$dbname = 'treasure_hunt';
 $user = 'root';
 $pass = '';
 
@@ -25,6 +35,7 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
+    error_log("Database connection failed: " . $e->getMessage());
     die("Connection failed: " . $e->getMessage());
 }
 
@@ -52,19 +63,32 @@ function verifyJWT($token) {
 }
 
 function registerUser($pdo, $username, $email, $password) {
-    $salt = bin2hex(random_bytes(16));
-    $hashedPassword = password_hash($password . $salt, PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, salt) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$username, $email, $hashedPassword, $salt]);
+    $salt = bin2hex(random_bytes(16)); // Generate a random salt
+    $hashedPassword = password_hash($password . $salt, PASSWORD_DEFAULT); // Hash the password with the salt
+    $passwordWithSalt = $salt . $hashedPassword; // Concatenate salt and hashed password
+
+    $stmt = $pdo->prepare("
+        INSERT INTO users (username, email, password) 
+        VALUES (?, ?, ?)
+    ");
+    $stmt->execute([$username, $email, $passwordWithSalt]);
+    error_log("New user registered Name: $username");
     return $pdo->lastInsertId();
 }
 
 function verifyPassword($pdo, $username, $password) {
-    $stmt = $pdo->prepare("SELECT id, password, salt FROM users WHERE username = ?");
+    $stmt = $pdo->prepare("SELECT id, password FROM users WHERE username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch();
-    if ($user && password_verify($password . $user['salt'], $user['password'])) {
-        return $user['id'];
+
+    if ($user) {
+        $storedPasswordWithSalt = $user['password'];
+        $salt = substr($storedPasswordWithSalt, 0, 32); // Extract the salt (first 32 characters)
+        $hashedPassword = substr($storedPasswordWithSalt, 32); // Extract the hashed password
+
+        if (password_verify($password . $salt, $hashedPassword)) {
+            return $user['id'];
+        }
     }
     return false;
 }
@@ -86,11 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $userId = registerUser($pdo, $username, $email, $password);
             $token = generateJWT($userId, $username);
+            error_log("JWT token generated for user ID: $userId");
 
             $_SESSION['userId'] = $userId;
             $_SESSION['username'] = $username;
 
             echo json_encode(['success' => true, 'userId' => $userId, 'token' => $token, 'message' => 'Registration successful.']);
+            error_log("Response sent for username: $username");
             exit;
 
         case 'login':

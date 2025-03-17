@@ -27,7 +27,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     switchTab('login');
 
-    document.getElementById("login-btn").addEventListener("click", () => {
+    document.getElementById("login-btn").addEventListener("click", (event) => {
+        event.preventDefault(); 
         const username = document.getElementById("login-username").value.trim();
         const password = document.getElementById("login-password").value.trim();
 
@@ -42,7 +43,15 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "login", username, password })
         })
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) {
+                    return res.text().then((text) => {
+                        console.error("Server response:", text);
+                        throw new Error("Server error");
+                    });
+                }
+                return res.json();
+            })
             .then((data) => {
                 if (data.success) {
                     localStorage.setItem("jwt", data.token); // Store JWT in local storage
@@ -63,7 +72,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    document.getElementById("register-btn").addEventListener("click", () => {
+    document.getElementById("register-btn").addEventListener("click", (event) => {
+        event.preventDefault(); 
         const username = document.getElementById("register-username").value.trim();
         const email = document.getElementById("register-email").value.trim();
         const password = document.getElementById("register-password").value.trim();
@@ -84,7 +94,15 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "register", username, email, password })
         })
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) {
+                    return res.text().then((text) => {
+                        console.error("Server response:", text);
+                        throw new Error("Server error");
+                    });
+                }
+                return res.json();
+            })
             .then((data) => {
                 if (data.success) {
                     localStorage.setItem("jwt", data.token); // Store JWT in local storage
