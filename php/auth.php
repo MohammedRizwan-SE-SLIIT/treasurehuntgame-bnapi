@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../config.php';
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -16,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 session_start();
 
+require_once '../config.php'; 
 $autoloadPath = realpath(__DIR__ . '/../vendor/autoload.php');
 if (!$autoloadPath) {
     error_log("Error: autoload.php not found at expected path.");
@@ -39,23 +42,23 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-$secretKey = '5982ffcceb7bd37de639e651f7308a4a7749545bc1fbff57d34fe15eb3b83bac'; // Replace with a strong secret key
+// SECRET_KEY = ''; // Replace with a strong secret key
 
 function generateJWT($userId, $username) {
-    global $secretKey;
+    
     $payload = [
         'userId' => $userId,
         'username' => $username,
         'iat' => time(),
         'exp' => time() + 3600 // Token expires in 1 hour
     ];
-    return JWT::encode($payload, $secretKey, 'HS256');
+    return JWT::encode($payload, JWT_SECRET_KEY, 'HS256');
 }
 
 function verifyJWT($token) {
-    global $secretKey;
+ 
     try {
-        $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
+        $decoded = JWT::decode($token, new Key(JWT_SECRET_KEY, 'HS256'));
         return $decoded;
     } catch (Exception $e) {
         return false;
