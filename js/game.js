@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateHeartsUI() {
-        // Ensure hearts never goes negative
         hearts = Math.max(0, hearts);  // Set hearts to 0 if it's negative
         heartsDisplay.textContent = `Hearts: ${'❤️'.repeat(hearts)}`;
     }
