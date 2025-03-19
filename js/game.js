@@ -1,279 +1,277 @@
-document.addEventListener("DOMContentLoaded", function () {
-    let currentLevel = 1;
-    let hearts = 4;
-    const maxLevelsForGuest = 2;
+document.addEventListener("DOMContentLoaded", () => {
+    // Game Variables
+    let level = 1;
+    let lives = 4;
     let timer;
-    let timeLeft = 60; // Time per level
-    const initialTime = 60;
-    let isGuest = localStorage.getItem("guestMode") === 'true';
+    let baseTimeLeft = 60;
+    let timeLeft = baseTimeLeft;
+    let correctAnswers = 0;
+    let totalAttempts = 0;
+    let treasuresCollected = 0;
+    let isTrickyQuestion = false;
+    let trickyAttempts = 0;
+    let trickyTreasureValues = [4, 2, 1];
+    let currentTreasureValue = 6;
+    const guestMode = localStorage.getItem("guestMode") === "true";
 
-    const levelInfo = document.getElementById("level-info");
-    const heartsDisplay = document.getElementById("lives");
+    // HTML element references
+    const levelInfo = document.getElementById("level");
+    const livesDisplay = document.getElementById("lives");
     const timerDisplay = document.getElementById("timer");
-    const feedbackMessage = document.getElementById("feedback-message");
     const questionImage = document.getElementById("math-image");
     const answerInput = document.getElementById("answer-input");
     const submitButton = document.getElementById("submit-answer");
-    const gameContainer = document.getElementById("game-container");
+    const feedbackMessage = document.getElementById("feedback-message");
+    const treasureCollectedDisplay = document.getElementById("treasure-collected");
+    const playerStats = document.getElementById("player-stats");
 
-    // Timer setup
+    // Fetch a new math problem using Banana API
+    async function fetchMathProblem() {
+        try {
+            const response = await fetch(`https://marcconrad.com/uob/banana/api.php?out=json`);
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            const data = await response.json();
+            if (!data.question || !data.solution) {
+                throw new Error('Invalid API response');
+            }
+            questionImage.src = data.question; // Set question image URL
+            questionImage.dataset.answer = data.solution; // Store correct answer in dataset
+
+            // Reset timer for the new problem
+            resetTimer();
+        } catch (error) {
+            console.error('Error fetching math problem:', error);
+            feedbackMessage.textContent = "Failed to load math problem. Please try again.";
+            // Retry fetching the math problem after a delay
+            setTimeout(fetchMathProblem, 3000);
+        }
+    }
+
+    // Generate a random tricky math question
+    function generateTrickyMathQuestion() {
+        const num1 = Math.floor(Math.random() * 100) + 1;
+        const num2 = Math.floor(Math.random() * 100) + 1;
+        const solution = num1 + num2;
+        questionImage.src = ''; // Clear the image
+        questionImage.alt = `${num1} + ${num2} = ?`; // Display the question as alt text
+        questionImage.dataset.answer = solution.toString(); // Store correct answer in dataset
+        feedbackMessage.textContent = "Solve this tricky question to regain your lives!";
+        isTrickyQuestion = true;
+        timeLeft = Math.max(30, baseTimeLeft - (trickyAttempts * 5)); // Reduce timer by 5s for each tricky attempt
+        startTimer();
+    }
+
+    // Timer Logic
     function startTimer() {
-        timeLeft = initialTime; // Reset timer to 60 seconds
-        timerDisplay.textContent = `Time Left: ${timeLeft}s`;
-
         timer = setInterval(() => {
             timeLeft--;
             timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                handleTimeOut();
+                if (isTrickyQuestion) {
+                    playSound('game-over-sound');
+                    showGameOverPopup();
+                    answerInput.disabled = true; // Disable input box
+                } else {
+                    handleWrongAnswer(); // Time's up, treat as incorrect answer
+                }
             }
         }, 1000);
     }
 
-    // Handle Time-Out: Deduct heart or trigger trap
-    function handleTimeOut() {
-        hearts--;
-        updateHeartsUI();
-        if (hearts === 0) {
-            triggerTrap();
-        } else {
-            feedbackMessage.textContent = "Time's up! You lost a heart.";
-            feedbackMessage.className = "error";
-            fetchMathProblem(); // Get next question
-        }
+    function resetTimer() {
+        clearInterval(timer);
+        timeLeft = baseTimeLeft;
+        startTimer();
     }
 
-    // Fetch dynamic math problems based on level
-    async function fetchMathProblem(difficulty = currentLevel, useBase64 = false) {
-        try {
-            // Use Base64 encoding if specified, otherwise use regular image URL
-            const apiUrl = useBase64 
-                ? 'https://cors-anywhere.herokuapp.com/http://marcconrad.com/uob/banana/api.php?out=json&base64=yes'  // Base64 encoded response
-                : 'https://cors-anywhere.herokuapp.com/http://marcconrad.com/uob/banana/api.php?out=json';  // Regular JSON with image URL
-            
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-
-            if (data.question && data.solution !== undefined) {
-                if (useBase64) {
-                    // Use Base64 encoded image directly
-                    const imageData = `data:image/png;base64,${data.question}`;
-                    questionImage.src = imageData;  // Set Base64 image as source
-                } else {
-                    // Use image URL
-                    questionImage.src = data.question;  // Set URL as source
-                }
-
-                questionImage.alt = "Math Problem";
-                questionImage.dataset.answer = data.solution;  // Store the solution (answer) in the dataset
-
-                feedbackMessage.textContent = `Solve this question to continue!`;
-                feedbackMessage.className = "info";
-            } else {
-                feedbackMessage.textContent = "No challenge found. Try again later.";
-                feedbackMessage.className = "error";
-            }
-        } catch (error) {
-            feedbackMessage.textContent = "Error fetching challenge. Try again later.";
-            feedbackMessage.className = "error";
-        }
-    }
-
-    function updateHeartsUI() {
-        hearts = Math.max(0, hearts);  // Set hearts to 0 if it's negative
-        heartsDisplay.textContent = `Hearts: ${'❤️'.repeat(hearts)}`;
-    }
-    // Check player's answer
-    function checkAnswer() {
+    // Handle Answer Submission
+    function handleAnswerSubmission() {
         const playerAnswer = answerInput.value.trim();
         const correctAnswer = questionImage.dataset.answer;
-    
-        if (parseInt(playerAnswer) === parseInt(correctAnswer)) {
-            feedbackMessage.textContent = "Correct! Proceeding to next level...";
-            feedbackMessage.className = "success";
-            showTreasureAnimation();  // Show treasure animation when the answer is correct
-            nextLevel();
+        totalAttempts++;
+
+        if (playerAnswer === correctAnswer) {
+            handleCorrectAnswer();
         } else {
-            feedbackMessage.textContent = "Incorrect! Try again.";
-            feedbackMessage.className = "error";
-            hearts--;
-            updateHeartsUI();
-            if (hearts === 0) {
-                triggerTrap();
-            }
+            handleWrongAnswer();
         }
+        updateStats();
+        answerInput.value = ""; // Clear the input field
     }
-    
-    // Move to the next level
-    function nextLevel() {
-        currentLevel++;
-        hearts = 4; // Reset hearts for the next level
-        updateHeartsUI();
-        updateLeaderboard();  // Update leaderboard after each level
 
-         // Reset and start the timer again
-         clearInterval(timer);  // Stop the existing timer
-         timeLeft = initialTime; // Reset time to 60 seconds
-         startTimer(); // Restart the timer
+    submitButton.addEventListener("click", handleAnswerSubmission);
+    answerInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            handleAnswerSubmission();
+        }
+    });
 
-        if (currentLevel > maxLevelsForGuest && !isGuest) {
+    // Correct Answer Handling
+    async function handleCorrectAnswer() {
+        feedbackMessage.textContent = "Correct! 🎉 Treasure unlocked!";
+        level++;
+        correctAnswers++;
+        treasuresCollected += currentTreasureValue;
+        playSound('correct-sound');
+        showTreasureAnimation();
+        updateUI(); // Update UI to reflect new level
+        await fetchMathProblem(); // Load next problem
+        isTrickyQuestion = false;
+        answerInput.disabled = false; // Enable input box
+
+        // Adjust treasure value based on level
+        if (level > 10) {
+            currentTreasureValue = 6;
+        } else if (trickyAttempts > 0) {
+            currentTreasureValue = trickyTreasureValues[trickyAttempts - 1];
+        }
+
+        // Prompt guest to log in after level 2
+        if (guestMode && level > 2) {
             showLoginPrompt();
-        } else {
-            fetchMathProblem(); // Get next question
         }
     }
 
-    // Trigger trap if hearts reach zero
-    function triggerTrap() {
-        feedbackMessage.textContent = "Trap triggered! Solve a harder question or wait 45 minutes for hearts to reset.";
-        fetchMathProblem(currentLevel + 2); // Fetch a harder question
-        startTrapCountdown();
+    // Wrong Answer Handling
+    function handleWrongAnswer() {
+        playSound('wrong-sound');
+        if (lives > 0) {
+            lives--;
+        }
+        feedbackMessage.textContent = `Incorrect! ${lives} hearts left. 💔`;
+
+        if (lives === 0 && trickyAttempts < 3) {
+            generateTrickyMathQuestion(); // Generate tricky question when out of lives
+            trickyAttempts++;
+            return;
+        }
+
+        if (!isTrickyQuestion) {
+            resetTimer();
+        }
+
+        updateUI();
     }
 
-    // Start trap countdown when time is up
-    function startTrapCountdown() {
-        let trapTimeLeft = 2700; // 45 minutes in seconds
-        const trapTimer = setInterval(() => {
-            trapTimeLeft--;
-            feedbackMessage.innerHTML = `Time until heart reset: ${Math.floor(trapTimeLeft / 60)}m ${trapTimeLeft % 60}s`;
-
-            if (trapTimeLeft <= 0) {
-                clearInterval(trapTimer);
-                resetHearts();
-            }
-        }, 1000);
-    }
-
-    // Reset hearts after trap countdown
-    function resetHearts() {
-        hearts = 4;
-        feedbackMessage.textContent = "Hearts restored! Try again!";
-        updateHeartsUI();
-        fetchMathProblem(); // Get next question
-    }
-
-    // Display login prompt after guest reaches max level
-    function showLoginPrompt() {
-        gameContainer.innerHTML = `
-            <h2>You've reached the guest limit!</h2>
-            <p>Sign up or log in to continue your adventure and unlock more levels, rewards, and surprises!</p>
-            <button onclick="window.location.href='../auth/auth.html'">Login / Register</button>
-        `;
-    }
-
-    // Show Treasure Animation when player answers correctly
+    // Show Treasure Animation
     function showTreasureAnimation() {
-        const treasure = document.getElementById("treasure-chest");
-        treasure.classList.remove("hidden");
-        playSound('treasure-sound'); // Play treasure sound
+        const treasureChestImgUrl =
+            "https://pplx-res.cloudinary.com/image/upload/v1741400427/user_uploads/bPlMhFDMUuVfybo/treasure.jpg"; 
 
-        // Hide treasure chest after 2 seconds
-        setTimeout(() => {
-            treasure.classList.add("hidden");
-        }, 2000);
+        const treasureDiv = document.createElement("div");
+        treasureDiv.classList.add("treasure-animation");
+        
+        const treasureImg = document.createElement("img");
+        treasureImg.src = treasureChestImgUrl;
+        
+        treasureDiv.appendChild(treasureImg);
+        
+        document.body.appendChild(treasureDiv);
+
+        setTimeout(() => treasureDiv.remove(), 2000); // Remove animation after 2 seconds
     }
 
-    // Update Leaderboard with current score (level)
+    // Show Game Over Popup
+    function showGameOverPopup() {
+        const popup = document.createElement("div");
+        popup.classList.add("game-over-popup");
+
+        const message = document.createElement("p");
+        message.textContent = `Game Over! 💀 You answered ${correctAnswers} out of ${totalAttempts} questions correctly. Your accuracy is ${(correctAnswers / totalAttempts * 100).toFixed(2)}%. Start over and see how far you can collect treasure! Arrr!`;
+
+        const restartButton = document.createElement("button");
+        restartButton.textContent = "Start Over";
+        restartButton.addEventListener("click", () => {
+            location.reload();
+        });
+
+        const dashboardButton = document.createElement("button");
+        dashboardButton.textContent = "Go to Dashboard";
+        dashboardButton.addEventListener("click", () => {
+            updateLeaderboard();
+            window.location.href = "../html/dashboard.html";
+        });
+
+        popup.appendChild(message);
+        popup.appendChild(restartButton);
+        popup.appendChild(dashboardButton);
+        document.body.appendChild(popup);
+    }
+
+    // Show Login Prompt for Guests
+    function showLoginPrompt() {
+        const popup = document.createElement("div");
+        popup.classList.add("login-prompt-popup");
+
+        const message = document.createElement("p");
+        message.textContent = "You've reached level 2! Please log in to continue.";
+
+        const loginButton = document.createElement("button");
+        loginButton.textContent = "Log In";
+        loginButton.addEventListener("click", () => {
+            window.location.href = "../html/auth.html";
+        });
+
+        popup.appendChild(message);
+        popup.appendChild(loginButton);
+        document.body.appendChild(popup);
+    }
+
+    // Update leaderboard with current player's score
     function updateLeaderboard() {
-        const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-        const currentScore = { name: "Player", level: currentLevel };
+        const highestLevel = level;
+        const totalTreasures = treasuresCollected;
 
-        leaderboard.push(currentScore);
-        leaderboard.sort((a, b) => b.level - a.level); // Sort leaderboard by level
-
-        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-        showLeaderboard();
-    }
-
-    // Show Leaderboard
-    function showLeaderboard() {
-        const leaderboardContainer = document.getElementById('leaderboard-list');
-        const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-        leaderboardContainer.innerHTML = '';
-
-        leaderboard.forEach((entry, index) => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `Rank ${index + 1}: ${entry.name} - Level ${entry.level}`;
-            leaderboardContainer.appendChild(listItem);
+        fetch('../php/update_leaderboard.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `highestLevel=${highestLevel}&totalTreasures=${totalTreasures}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Error updating leaderboard:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating leaderboard:', error);
         });
     }
 
-    // Show leaderboard when button clicked
-    const leaderboardButton = document.getElementById('view-leaderboard');
-    leaderboardButton.addEventListener('click', function () {
-        const leaderboardContainer = document.getElementById('leaderboard');
-        leaderboardContainer.classList.toggle('hidden');
-        showLeaderboard();
-    });
+    // Update Stats Display
+    function updateStats() {
+        const accuracy =
+            totalAttempts > 0 ? ((correctAnswers / totalAttempts) * 100).toFixed(2) : 0;
 
-    // Play sound effect
-    function playSound(soundId) {
-        const sound = document.getElementById(soundId);
-        if (sound) sound.play();
+        playerStats.textContent = `Accuracy: ${accuracy}%`;
+        treasureCollectedDisplay.textContent = `Treasures Collected: ${treasuresCollected}`;
     }
 
-    // Correct answer sound
-    const correctSound = document.createElement('audio');
-    correctSound.id = 'correct-sound';
-    correctSound.src = '../assets/correct.mp3';
-    document.body.appendChild(correctSound);
+    // Update UI After Losing a Heart or Progressing a Level
+    function updateUI() {
+        levelInfo.textContent = `Level: ${level}`;
+        livesDisplay.textContent = `Lives: ${'❤'.repeat(lives)}`;
+    }
 
-    // Wrong answer sound
-    const wrongSound = document.createElement('audio');
-    wrongSound.id = 'wrong-sound';
-    wrongSound.src = '../assets/wrong.mp3';
-    document.body.appendChild(wrongSound);
+    // Play Sound Effects
+    function playSound(soundId) {
+        const sound = document.getElementById(soundId);
+        if (sound && typeof sound.play === 'function') {
+            sound.play().catch(error => {
+                console.error('Error playing sound:', error);
+            });
+        } else {
+            console.error('Sound element not found or invalid:', soundId);
+        }
+    }
 
-    // Trap sound (optional)
-    const trapSound = document.createElement('audio');
-    trapSound.id = 'trap-sound';
-    trapSound.src = '../assets/trap.mp3';
-    document.body.appendChild(trapSound);
-
-    // Treasure sound
-    const treasureSound = document.createElement('audio');
-    treasureSound.id = 'treasure-sound';
-    treasureSound.src = '../assets/treasure.mp3';
-    document.body.appendChild(treasureSound);
-
-    // Event listeners
-    submitButton.addEventListener("click", checkAnswer);
-
-    // Initialize the game
-    fetchMathProblem();
+    // Initialize Game on Page Load
+    fetchMathProblem(); 
     startTimer();
-    updateHeartsUI();
 });
-
-
-
-
-
-      // Fetch dynamic math problems based on level
-// async function fetchMathProblem(difficulty = currentLevel) {
-//     try {
-//         const apiUrl = `http://marcconrad.com/uob/banana/api.php?out=json&base64=yes`; // Using the default json response
-//         const response = await fetch(apiUrl);
-//         const data = await response.json();
-
-//         if (data.question && data.solution !== undefined) {
-//             // Display the question image
-//             questionImage.src = data.question;
-//             questionImage.alt = "Math Problem";
-//             questionImage.dataset.answer = data.solution;  // Store the solution (answer) in the dataset
-
-//             // Show the math question
-//             feedbackMessage.textContent = `Solve this question to continue!`;
-//             feedbackMessage.className = "info";
-//         } else {
-//             feedbackMessage.textContent = "No challenge found. Try again later.";
-//             feedbackMessage.className = "error";
-//         }
-//     } catch (error) {
-//         feedbackMessage.textContent = "Error fetching challenge. Try again later.";
-//         feedbackMessage.className = "error";
-//     }
-// }
-
-
