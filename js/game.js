@@ -49,18 +49,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Generate a random tricky math question
-    function generateTrickyMathQuestion() {
-        const num1 = Math.floor(Math.random() * 100) + 1;
-        const num2 = Math.floor(Math.random() * 100) + 1;
-        const solution = num1 + num2;
-        questionImage.src = ''; // Clear the image
-        questionImage.alt = `${num1} + ${num2} = ?`; // Display the question as alt text
-        questionImage.dataset.answer = solution.toString(); // Store correct answer in dataset
-        feedbackMessage.textContent = "Solve this tricky question to regain your lives!";
-        isTrickyQuestion = true;
-        timeLeft = Math.max(30, baseTimeLeft - (trickyAttempts * 5)); // Reduce timer by 5s for each tricky attempt
-        startTimer();
+    // Generate a tricky math question using Wolfram Alpha Short Answers API
+    async function generateTrickyMathQuestion() {
+        const appKey = "7E9Q3E-8VHYT9JLXW";
+        const query = encodeURIComponent("random math problem");
+
+        try {
+            const response = await fetch(`https://api.wolframalpha.com/v1/result?i=${query}&appid=${appKey}`);
+            if (!response.ok) {
+                throw new Error(`Wolfram API Error: ${response.status}`);
+            }
+
+            const solution = await response.text();
+            const question = "Solve this tricky math problem:"; // Placeholder question text
+
+            questionImage.src = ""; // Clear the image
+            questionImage.alt = question; // Display the question as alt text
+            questionImage.dataset.answer = solution.trim(); // Store the correct answer in the dataset
+            feedbackMessage.textContent = "Solve this tricky question to regain your lives!";
+            isTrickyQuestion = true;
+            timeLeft = Math.max(30, baseTimeLeft - (trickyAttempts * 5)); // Reduce timer by 5s for each tricky attempt
+            startTimer();
+        } catch (error) {
+            console.error("Error fetching tricky math question:", error);
+            feedbackMessage.textContent = "Failed to load tricky question. Please try again.";
+            // Retry fetching the tricky question after a delay
+            setTimeout(generateTrickyMathQuestion, 3000);
+        }
     }
 
     // Timer Logic
