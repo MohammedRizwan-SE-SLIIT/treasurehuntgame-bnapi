@@ -42,6 +42,16 @@ h1 {
     border-radius: 10px;
 }
 
+#math-image {
+    max-width: 300px;
+    max-height: 200px;
+    margin-bottom: 20px;
+    border: 2px solid #4682b4;
+    border-radius: 10px;
+    background-color: #f0f8ff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
 input[type="text"] {
     width: 200px;
     padding: 10px;
@@ -201,6 +211,19 @@ button:hover {
 
 .confirm-button:hover {
     background-color: #31b0d5;
+}
+
+#math-question {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 2px solid #4682b4;
+    border-radius: 10px;
+    background-color: #f0f8ff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive Design */

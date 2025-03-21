@@ -36,8 +36,15 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!data.question || !data.solution) {
                 throw new Error('Invalid API response');
             }
-            questionImage.src = data.question; // Set question image URL
-            questionImage.dataset.answer = data.solution; // Store correct answer in dataset
+
+            // Show the image and hide the div for regular questions
+            const mathImage = document.getElementById("math-image");
+            const mathQuestion = document.getElementById("math-question");
+            mathImage.style.display = "block";
+            mathQuestion.style.display = "none";
+
+            mathImage.src = data.question; // Set the question image URL
+            mathImage.dataset.answer = data.solution; // Store the correct answer in the dataset
 
             // Reset timer for the new problem
             resetTimer();
@@ -49,27 +56,81 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Generate a tricky math question using Wolfram Alpha Short Answers API
-    async function generateTrickyMathQuestion() {
-        const appKey = "7E9Q3E-8VHYT9JLXW";
-        const query = encodeURIComponent("random math problem");
+    // Helper function to call the Basic Calculation API
+    async function callAPI(endpoint, method, params) {
+        const url = new URL(`http://localhost:8000${endpoint}`); // Update base URL if necessary
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
+        const response = await fetch(url, { method });
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    // Generate a tricky math question using the Basic Calculation API
+    async function generateTrickyMathQuestion() {
         try {
-            const response = await fetch(`https://api.wolframalpha.com/v1/result?i=${query}&appid=${appKey}`);
-            if (!response.ok) {
-                throw new Error(`Wolfram API Error: ${response.status}`);
+            // Randomly select an operation
+            const operations = ['add', 'subtract', 'multiply', 'divide'];
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+
+            // Generate random numbers for the operation
+            const num1 = Math.floor(Math.random() * 100) + 1;
+            const num2 = Math.floor(Math.random() * 100) + 1;
+
+            // Map operation to API endpoint
+            const operationEndpoints = {
+                add: '/basic-calculation/add/',
+                subtract: '/basic-calculation/subtract/',
+                multiply: '/basic-calculation/multiply/',
+                divide: '/basic-calculation/divide/',
+            };
+
+            // Ensure no division by zero
+            if (operation === 'divide' && num2 === 0) {
+                return generateTrickyMathQuestion();
             }
 
-            const solution = await response.text();
-            const question = "Solve this tricky math problem:"; // Placeholder question text
+            // Call the appropriate API endpoint
+            const solution = await callAPI(operationEndpoints[operation], 'GET', { num1, num2 });
 
-            questionImage.src = ""; // Clear the image
-            questionImage.alt = question; // Display the question as alt text
-            questionImage.dataset.answer = solution.trim(); // Store the correct answer in the dataset
+            // Check if the API returned an error
+            if (solution.error) {
+                console.error("API Error:", solution.error);
+                feedbackMessage.textContent = "Failed to load tricky question. Please try again.";
+                return setTimeout(generateTrickyMathQuestion, 3000); // Retry after a delay
+            }
+
+            // Ensure the response contains the required data
+            if (!solution.resultado) {
+                console.error("Invalid API response: Missing 'resultado'");
+                feedbackMessage.textContent = "Failed to load tricky question. Please try again.";
+                return setTimeout(generateTrickyMathQuestion, 3000); // Retry after a delay
+            }
+
+            // Display the tricky question
+            const operationSymbols = {
+                add: '+',
+                subtract: '-',
+                multiply: '*',
+                divide: '/',
+            };
+            const question = `${num1} ${operationSymbols[operation]} ${num2} = ?`;
+
+            // Hide the image and show the div for tricky questions
+            const mathImage = document.getElementById("math-image");
+            const mathQuestion = document.getElementById("math-question");
+            mathImage.style.display = "none";
+            mathQuestion.style.display = "block";
+            mathQuestion.textContent = question; // Set the question text
+            mathQuestion.dataset.answer = solution.resultado.toString(); // Store the correct answer in the dataset
+
             feedbackMessage.textContent = "Solve this tricky question to regain your lives!";
             isTrickyQuestion = true;
-            timeLeft = Math.max(30, baseTimeLeft - (trickyAttempts * 5)); // Reduce timer by 5s for each tricky attempt
-            startTimer();
+
+            // Do not start the timer for tricky questions
+            clearInterval(timer); // Stop any running timer
         } catch (error) {
             console.error("Error fetching tricky math question:", error);
             feedbackMessage.textContent = "Failed to load tricky question. Please try again.";
@@ -105,15 +166,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Handle Answer Submission
     function handleAnswerSubmission() {
-        const playerAnswer = answerInput.value.trim();
-        const correctAnswer = questionImage.dataset.answer;
+        const playerAnswer = answerInput.value.trim(); // Trim whitespace from the input
+        const correctAnswer = isTrickyQuestion
+            ? document.getElementById("math-question").dataset.answer
+            : questionImage.dataset.answer;
+
         totalAttempts++;
 
-        if (playerAnswer === correctAnswer) {
+        // Ensure both answers are compared as strings to avoid type mismatches
+        if (playerAnswer === correctAnswer.toString()) {
             handleCorrectAnswer();
         } else {
             handleWrongAnswer();
         }
+
         updateStats();
         answerInput.value = ""; // Clear the input field
     }
