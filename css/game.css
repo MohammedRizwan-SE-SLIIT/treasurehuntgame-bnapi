@@ -1,237 +1,159 @@
+/* Reset body styles and set a vibrant background */
 body {
     font-family: 'Trebuchet MS', sans-serif;
-    background-color: #f0f8ff;
+    background: linear-gradient(135deg, #ff7eb3, #ff758c);
     margin: 0;
     padding: 0;
+    overflow: hidden; /* Prevent scrollbars */
+    color: #fff;
 }
 
+/* Center the game container and make it full-screen */
 #gameContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
+    text-align: center;
 }
 
+/* Game title with a glowing effect */
 h1 {
-    color: #2e8b57;
-    font-size: 2.5rem;
+    color: #fff;
+    font-size: 3rem;
+    text-shadow: 0 0 10px #ffb3d9, 0 0 20px #ffb3d9;
+    margin-bottom: 20px;
 }
 
+/* Stats section with a modern card-like design */
 #stats {
     display: flex;
     justify-content: space-around;
     width: 80%;
     margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #stats p {
     font-size: 1.2rem;
-    color: #4682b4;
+    color: #fff;
 }
 
+/* Problem container with a glowing border */
 #problemContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-#problemImage {
-    max-width: 300px;
-    border: 2px solid #4682b4;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #math-image {
     max-width: 300px;
     max-height: 200px;
     margin-bottom: 20px;
-    border: 2px solid #4682b4;
+    border: 2px solid #fff;
     border-radius: 10px;
-    background-color: #f0f8ff;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    background-color: #ffb3d9;
+    box-shadow: 0 0 10px #ffb3d9;
 }
 
+#math-question {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px #ffb3d9;
+}
+
+/* Input and button styles */
 input[type="text"] {
-    width: 200px;
+    width: 250px;
     padding: 10px;
     margin-top: 10px;
     border-radius: 5px;
-    border: 1px solid #4682b4;
+    border: 1px solid #fff;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1rem;
+    text-align: center;
 }
 
 button {
     margin-top: 10px;
     padding: 10px 20px;
-    background-color: #2e8b57;
-    color: white;
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    color: #fff;
     border-radius: 5px;
     border: none;
     cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 button:hover {
-    background-color: #3cb371;
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* Timer with a glowing effect */
 #timer {
     font-size: 1.5rem;
-    color: #dc143c; /* Red for urgency */
+    color: #fff;
+    text-shadow: 0 0 10px #ffb3d9;
+    margin-top: 20px;
 }
 
+/* Feedback message with a bold and centered style */
+#feedback-message {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    margin-top: 20px;
+}
+
+/* Profile container with a modern floating card design */
 #profileContainer {
     position: absolute;
     top: 20px;
     right: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background: rgba(255, 255, 255, 0.2);
     padding: 10px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    border: 2px solid #d4af37;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border: 2px solid #fff;
 }
 
-#profile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#avatar {
-    width: 50px;
-    height: 50px;
+#profile img {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     margin-bottom: 5px;
-    border: 2px solid #d4af37;
+    border: 2px solid #fff;
 }
 
 #pirateName {
-    font-size: 1.2em;
-    color: #d4af37;
-}
-
-/* Treasure Animation */
-@keyframes treasureUnlock {
-    from {
-        transform: scale(0.8);
-        opacity: 0.5;
-    }
-    
-    to {
-        transform: scale(1.2);
-        opacity: 1.0;
-    }
-}
-
-.treasure-animation {
-    animation-name: treasureUnlock;
-    animation-duration: 1s;
-}
-
-.logout-button {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-.logout-button:hover {
-    background-color: #c9302c;
-}
-
-.dashboard-button {
-    background-color: #5bc0de;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-.dashboard-button:hover {
-    background-color: #31b0d5;
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 400px;
-    text-align: center;
-    border-radius: 10px;
-}
-
-.close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.confirm-button {
-    background-color: #5bc0de;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-.confirm-button:hover {
-    background-color: #31b0d5;
-}
-
-#math-question {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 2px solid #4682b4;
-    border-radius: 10px;
-    background-color: #f0f8ff;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    font-size: 1.2rem;
+    color: #fff;
 }
 
 /* Responsive Design */
 @media (max-width: 600px) {
-    #gameContainer {
-        padding: 20px;
-    }
-
     h1 {
         font-size: 2rem;
     }

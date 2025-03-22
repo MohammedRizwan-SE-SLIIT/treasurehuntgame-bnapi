@@ -50,8 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
             resetTimer();
         } catch (error) {
             console.error('Error fetching math problem:', error);
-            feedbackMessage.textContent = "Failed to load math problem. Please try again.";
-            // Retry fetching the math problem after a delay
+            // Removed feedbackMessage.textContent assignment
             setTimeout(fetchMathProblem, 3000);
         }
     }
@@ -98,15 +97,15 @@ document.addEventListener("DOMContentLoaded", () => {
             // Check if the API returned an error
             if (solution.error) {
                 console.error("API Error:", solution.error);
-                feedbackMessage.textContent = "Failed to load tricky question. Please try again.";
-                return setTimeout(generateTrickyMathQuestion, 3000); // Retry after a delay
+                setTimeout(generateTrickyMathQuestion, 3000); // Retry after a delay
+                return;
             }
 
             // Ensure the response contains the required data
             if (!solution.resultado) {
                 console.error("Invalid API response: Missing 'resultado'");
-                feedbackMessage.textContent = "Failed to load tricky question. Please try again.";
-                return setTimeout(generateTrickyMathQuestion, 3000); // Retry after a delay
+                setTimeout(generateTrickyMathQuestion, 3000); // Retry after a delay
+                return;
             }
 
             // Display the tricky question
@@ -125,28 +124,34 @@ document.addEventListener("DOMContentLoaded", () => {
             mathQuestion.style.display = "block";
             mathQuestion.textContent = question; // Set the question text
             mathQuestion.dataset.answer = solution.resultado.toString(); // Store the correct answer in the dataset
-
+ 
             feedbackMessage.textContent = "Solve this tricky question to regain your lives!";
             isTrickyQuestion = true;
-
-            // Do not start the timer for tricky questions
+          
+            // Hide the timer display for tricky questions
+            timerDisplay.style.display = "none";
             clearInterval(timer); // Stop any running timer
+
+            // Ensure lives are set to 0 if tricky question is triggered
+            lives = 0;
+            updateUI(); // Update the UI to reflect the correct heart count
         } catch (error) {
             console.error("Error fetching tricky math question:", error);
-            feedbackMessage.textContent = "Failed to load tricky question. Please try again.";
-            // Retry fetching the tricky question after a delay
+            // Removed feedbackMessage.textContent assignment
             setTimeout(generateTrickyMathQuestion, 3000);
         }
     }
 
     // Timer Logic
     function startTimer() {
+        timerDisplay.style.display = "block"; // Ensure the timer is visible for regular questions
         timer = setInterval(() => {
             timeLeft--;
             timerDisplay.textContent = `Time Left: ${timeLeft}s`;
 
             if (timeLeft <= 0) {
                 clearInterval(timer);
+                timeLeft = 0; // Prevent negative timer values
                 if (isTrickyQuestion) {
                     playSound('game-over-sound');
                     showGameOverPopup();
@@ -164,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startTimer();
     }
 
-    // Handle Answer Submission
+
     function handleAnswerSubmission() {
         const playerAnswer = answerInput.value.trim(); // Trim whitespace from the input
         const correctAnswer = isTrickyQuestion
@@ -181,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         updateStats();
-        answerInput.value = ""; // Clear the input field
+        answerInput.value = "";
     }
 
     submitButton.addEventListener("click", handleAnswerSubmission);
@@ -191,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Correct Answer Handling
+ 
     async function handleCorrectAnswer() {
         feedbackMessage.textContent = "Correct! 🎉 Treasure unlocked!";
         level++;
@@ -203,6 +208,12 @@ document.addEventListener("DOMContentLoaded", () => {
         await fetchMathProblem(); // Load next problem
         isTrickyQuestion = false;
         answerInput.disabled = false; // Enable input box
+
+        // Regain 1 heart if a tricky question was answered correctly
+        if (trickyAttempts > 0 && lives === 0) {
+            lives = 1; // Regain exactly 1 heart
+            trickyAttempts = 0; // Reset tricky attempts
+        }
 
         // Adjust treasure value based on level
         if (level > 10) {
@@ -337,7 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update UI After Losing a Heart or Progressing a Level
     function updateUI() {
         levelInfo.textContent = `Level: ${level}`;
-        livesDisplay.textContent = `Lives: ${'❤'.repeat(lives)}`;
+        livesDisplay.textContent = `Lives: ${'❤'.repeat(Math.max(lives, 0))}`; // Prevent negative heart display
     }
 
     // Play Sound Effects
