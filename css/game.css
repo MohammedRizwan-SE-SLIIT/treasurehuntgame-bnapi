@@ -1,29 +1,47 @@
-/* Reset body styles and set a vibrant background */
-body {
-    font-family: 'Trebuchet MS', sans-serif;
-    background: linear-gradient(135deg, #ff7eb3, #ff758c);
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Prevent scrollbars */
-    color: #fff;
+/* Define dynamic color variables */
+:root {
+    --primary-color: #ff7eb3;
+    --secondary-color: #ff758c;
+    --background-color: #fff;
+    --text-color: #000;
 }
 
-/* Center the game container and make it full-screen */
+/* Apply dynamic colors */
+body {
+    font-family: 'Trebuchet MS', sans-serif;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    color: var(--text-color);
+}
+
+/* Game container with improved spacing and responsiveness */
 #gameContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    text-align: center;
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Game title with a glowing effect */
+/* Typography enhancements */
 h1 {
-    color: #fff;
-    font-size: 3rem;
-    text-shadow: 0 0 10px #ffb3d9, 0 0 20px #ffb3d9;
+    font-family: 'Georgia', serif;
+    font-size: 3.5rem;
+    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--secondary-color);
     margin-bottom: 20px;
+}
+
+p {
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 1.2rem;
 }
 
 /* Stats section with a modern card-like design */
@@ -90,10 +108,11 @@ input[type="text"] {
     text-align: center;
 }
 
+/* Buttons with dynamic colors */
 button {
     margin-top: 10px;
     padding: 10px 20px;
-    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
     color: #fff;
     border-radius: 5px;
     border: none;
@@ -111,17 +130,26 @@ button:hover {
 /* Timer with a glowing effect */
 #timer {
     font-size: 1.5rem;
-    color: #fff;
-    text-shadow: 0 0 10px #ffb3d9;
+    color: var(--text-color);
+    text-shadow: 0 0 10px var(--primary-color);
     margin-top: 20px;
 }
 
-/* Feedback message with a bold and centered style */
+/* Feedback messages */
 #feedback-message {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: bold;
-    color: #fff;
+    padding: 10px;
     margin-top: 20px;
+    border-radius: 10px;
+}
+
+#feedback-message.success {
+    color: #32cd32;
+}
+
+#feedback-message.error {
+    color: #ff0000;
 }
 
 /* Profile container with a modern floating card design */
@@ -155,7 +183,11 @@ button:hover {
 /* Responsive Design */
 @media (max-width: 600px) {
     h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
+    }
+
+    #gameContainer {
+        padding: 15px;
     }
 
     #stats {

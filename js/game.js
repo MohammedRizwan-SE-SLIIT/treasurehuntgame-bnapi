@@ -366,4 +366,39 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize Game on Page Load
     fetchMathProblem(); 
     startTimer();
+
+    // Dynamic accent colors and dark mode toggle
+    const colors = [
+        { primary: "#ff7eb3", secondary: "#ff758c" },
+        { primary: "#6a5acd", secondary: "#483d8b" },
+        { primary: "#00bfff", secondary: "#1e90ff" },
+        { primary: "#32cd32", secondary: "#228b22" }
+    ];
+
+    // Randomly select a color scheme on page load
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+    // Update CSS variables dynamically
+    document.documentElement.style.setProperty("--primary-color", randomColor.primary);
+    document.documentElement.style.setProperty("--secondary-color", randomColor.secondary);
+
+    // Dark mode toggle
+    const themeToggle = document.createElement("button");
+    themeToggle.textContent = "Toggle Dark Mode";
+    themeToggle.style.position = "absolute";
+    themeToggle.style.top = "10px";
+    themeToggle.style.left = "10px";
+    themeToggle.style.padding = "10px";
+    themeToggle.style.background = "rgba(0, 0, 0, 0.5)";
+    themeToggle.style.color = "#fff";
+    themeToggle.style.border = "none";
+    themeToggle.style.borderRadius = "5px";
+    themeToggle.style.cursor = "pointer";
+    document.body.appendChild(themeToggle);
+
+    themeToggle.addEventListener("click", () => {
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+    });
 });
