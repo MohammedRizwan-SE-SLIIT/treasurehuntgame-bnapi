@@ -25,6 +25,44 @@ document.addEventListener("DOMContentLoaded", () => {
     const treasureCollectedDisplay = document.getElementById("treasure-collected");
     const playerStats = document.getElementById("player-stats");
 
+    // Dynamic Accent Colors
+    const colors = [
+        { primary: "#ff7eb3", secondary: "#ff758c" },
+        { primary: "#6a5acd", secondary: "#483d8b" },
+        { primary: "#00bfff", secondary: "#1e90ff" },
+        { primary: "#32cd32", secondary: "#228b22" }
+    ];
+
+    // Randomly select a color scheme on page load
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    document.documentElement.style.setProperty("--primary-color", randomColor.primary);
+    document.documentElement.style.setProperty("--secondary-color", randomColor.secondary);
+
+    // Theme Toggle Logic
+    const themeToggleButton = document.createElement("button");
+    themeToggleButton.textContent = "Dark Mode: Disabled";
+    themeToggleButton.style.position = "absolute";
+    themeToggleButton.style.top = "10px";
+    themeToggleButton.style.left = "10px";
+    themeToggleButton.style.padding = "10px";
+    themeToggleButton.style.background = "rgba(0, 0, 0, 0.5)";
+    themeToggleButton.style.color = "#fff";
+    themeToggleButton.style.border = "none";
+    themeToggleButton.style.borderRadius = "5px";
+    themeToggleButton.style.cursor = "pointer";
+    document.body.appendChild(themeToggleButton);
+
+    const currentTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", currentTheme);
+    themeToggleButton.textContent = currentTheme === "dark" ? "Dark Mode: Enabled" : "Dark Mode: Disabled";
+
+    themeToggleButton.addEventListener("click", () => {
+        const newTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        themeToggleButton.textContent = newTheme === "dark" ? "Dark Mode: Enabled" : "Dark Mode: Disabled";
+    });
+
     // Fetch a new math problem using Banana API
     async function fetchMathProblem() {
         try {
@@ -348,7 +386,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update UI After Losing a Heart or Progressing a Level
     function updateUI() {
         levelInfo.textContent = `Level: ${level}`;
-        livesDisplay.textContent = `Lives: ${'❤'.repeat(Math.max(lives, 0))}`; // Prevent negative heart display
+        livesDisplay.textContent = `Hearts: ${'❤'.repeat(Math.max(lives, 0))}`; // Prevent negative heart display
+        treasureCollectedDisplay.textContent = `Treasures Collected: ${treasuresCollected}`;
     }
 
     // Play Sound Effects
@@ -367,38 +406,32 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchMathProblem(); 
     startTimer();
 
-    // Dynamic accent colors and dark mode toggle
-    const colors = [
-        { primary: "#ff7eb3", secondary: "#ff758c" },
-        { primary: "#6a5acd", secondary: "#483d8b" },
-        { primary: "#00bfff", secondary: "#1e90ff" },
-        { primary: "#32cd32", secondary: "#228b22" }
-    ];
+    // Dashboard modal logic
+    const dashboardButton = document.getElementById("dashboardButton");
+    const confirmationModal = document.getElementById("confirmationModal");
+    const closeButton = document.querySelector(".close-button");
+    const confirmYes = document.getElementById("confirmYes");
+    const confirmNo = document.getElementById("confirmNo");
 
-    // Randomly select a color scheme on page load
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
-    // Update CSS variables dynamically
-    document.documentElement.style.setProperty("--primary-color", randomColor.primary);
-    document.documentElement.style.setProperty("--secondary-color", randomColor.secondary);
-
-    // Dark mode toggle
-    const themeToggle = document.createElement("button");
-    themeToggle.textContent = "Toggle Dark Mode";
-    themeToggle.style.position = "absolute";
-    themeToggle.style.top = "10px";
-    themeToggle.style.left = "10px";
-    themeToggle.style.padding = "10px";
-    themeToggle.style.background = "rgba(0, 0, 0, 0.5)";
-    themeToggle.style.color = "#fff";
-    themeToggle.style.border = "none";
-    themeToggle.style.borderRadius = "5px";
-    themeToggle.style.cursor = "pointer";
-    document.body.appendChild(themeToggle);
-
-    themeToggle.addEventListener("click", () => {
-        const currentTheme = document.documentElement.getAttribute("data-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", newTheme);
+    dashboardButton.addEventListener("click", () => {
+        confirmationModal.style.display = "flex"; // Show modal as a popup
     });
+
+    closeButton.addEventListener("click", () => {
+        confirmationModal.style.display = "none"; // Hide modal
+    });
+
+    confirmYes.addEventListener("click", () => {
+        window.location.href = "../html/dashboard.html";
+    });
+
+    confirmNo.addEventListener("click", () => {
+        confirmationModal.style.display = "none"; // Hide modal
+    });
+
+    window.onclick = (event) => {
+        if (event.target === confirmationModal) {
+            confirmationModal.style.display = "none"; // Hide modal if clicked outside
+        }
+    };
 });

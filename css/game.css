@@ -1,22 +1,44 @@
-/* Define dynamic color variables */
-:root {
-    --primary-color: #ff7eb3;
-    --secondary-color: #ff758c;
-    --background-color: #fff;
-    --text-color: #000;
+/* Dark Mode: Disabled (Dynamic Background Colors) */
+:root[data-theme='light'] {
+    --primary-color: #ff7eb3; /* Vibrant pink */
+    --secondary-color: #ff758c; /* Vibrant coral */
+    --background-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); /* Dynamic gradient */
+    --text-color: #000000; /* Black text for contrast */
+    --button-background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    --button-text-color: #ffffff;
+    --container-background: rgba(255, 255, 255, 0.8); /* Light container background */
+    --modal-background: #ffffff;
+    --modal-text-color: #000000;
+    --input-background: #ffffff;
+    --input-text-color: #000000;
+}
+
+/* Dark Mode: Enabled (Black Theme) */
+:root[data-theme='dark'] {
+    --primary-color: #000000; /* Black theme */
+    --secondary-color: #1a1a1a; /* Slightly lighter black */
+    --background-gradient: #000000; /* Solid black background */
+    --text-color: #ffffff; /* White text for contrast */
+    --button-background: #1a1a1a; /* Dark button background */
+    --button-text-color: #ffffff;
+    --container-background: #1a1a1a; /* Dark container background */
+    --modal-background: #1a1a1a;
+    --modal-text-color: #ffffff;
+    --input-background: #2a2a2a;
+    --input-text-color: #ffffff;
 }
 
 /* Apply dynamic colors */
 body {
     font-family: 'Trebuchet MS', sans-serif;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: var(--background-gradient);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
     overflow: hidden;
-    color: var(--text-color);
 }
 
-/* Game container with improved spacing and responsiveness */
+/* Game container with dynamic background */
 #gameContainer {
     display: flex;
     flex-direction: column;
@@ -26,7 +48,7 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--container-background);
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
@@ -35,8 +57,9 @@ body {
 h1 {
     font-family: 'Georgia', serif;
     font-size: 3.5rem;
-    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--secondary-color);
+    color: var(--text-color); /* Adapt font color to theme */
     margin-bottom: 20px;
+    text-shadow: none; /* Removed font shadow */
 }
 
 p {
@@ -44,21 +67,22 @@ p {
     font-size: 1.2rem;
 }
 
-/* Stats section with a modern card-like design */
+/* Stats section with dynamic colors */
 #stats {
     display: flex;
     justify-content: space-around;
     width: 80%;
     margin-bottom: 20px;
     padding: 10px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--container-background); /* Adapt background to theme */
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #stats p {
     font-size: 1.2rem;
-    color: #fff;
+    color: var(--text-color); /* Adapt text color to theme */
+    margin: 0;
 }
 
 /* Problem container with a glowing border */
@@ -72,14 +96,14 @@ p {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* Dynamic border and shadow for images */
 #math-image {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
     max-width: 300px;
     max-height: 200px;
     margin-bottom: 20px;
-    border: 2px solid #fff;
-    border-radius: 10px;
     background-color: #ffb3d9;
-    box-shadow: 0 0 10px #ffb3d9;
 }
 
 #math-question {
@@ -101,9 +125,9 @@ input[type="text"] {
     padding: 10px;
     margin-top: 10px;
     border-radius: 5px;
-    border: 1px solid #fff;
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    border: 1px solid var(--primary-color);
+    background: var(--input-background);
+    color: var(--input-text-color);
     font-size: 1rem;
     text-align: center;
 }
@@ -112,8 +136,8 @@ input[type="text"] {
 button {
     margin-top: 10px;
     padding: 10px 20px;
-    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-    color: #fff;
+    background: var(--button-background);
+    color: var(--button-text-color);
     border-radius: 5px;
     border: none;
     cursor: pointer;
@@ -127,12 +151,12 @@ button:hover {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Timer with a glowing effect */
+/* Timer with dynamic colors */
 #timer {
     font-size: 1.5rem;
-    color: var(--text-color);
-    text-shadow: 0 0 10px var(--primary-color);
+    color: var(--text-color); /* Adapt font color to theme */
     margin-top: 20px;
+    text-shadow: none; /* Removed font shadow */
 }
 
 /* Feedback messages */
@@ -142,6 +166,7 @@ button:hover {
     padding: 10px;
     margin-top: 20px;
     border-radius: 10px;
+    color: var(--text-color); /* Adapt text color to theme */
 }
 
 #feedback-message.success {
@@ -162,7 +187,8 @@ button:hover {
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     border: 2px solid #fff;
 }
@@ -178,6 +204,31 @@ button:hover {
 #pirateName {
     font-size: 1.2rem;
     color: #fff;
+    text-align: center;
+}
+
+/* Modal with dynamic colors */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--modal-background);
+    color: var(--modal-text-color);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Responsive Design */
