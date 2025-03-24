@@ -236,6 +236,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
  
     async function handleCorrectAnswer() {
+        // Prevent progression for guest users beyond level 2
+        if (guestMode && level >= 2) {
+            showLoginPrompt();
+            return; // Stop further progression
+        }
+
         feedbackMessage.textContent = "Correct! 🎉 Treasure unlocked!";
         level++;
         correctAnswers++;
@@ -258,11 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
             currentTreasureValue = 6;
         } else if (trickyAttempts > 0) {
             currentTreasureValue = trickyTreasureValues[trickyAttempts - 1];
-        }
-
-        // Prompt guest to log in after level 2
-        if (guestMode && level > 2) {
-            showLoginPrompt();
         }
     }
 
@@ -334,21 +335,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Show Login Prompt for Guests
     function showLoginPrompt() {
-        const popup = document.createElement("div");
-        popup.classList.add("login-prompt-popup");
+        // Prevent duplicate modals
+        if (document.getElementById("loginPromptModal")) return;
 
-        const message = document.createElement("p");
-        message.textContent = "You've reached level 2! Please log in to continue.";
+        // Create modal overlay
+        const modalOverlay = document.createElement("div");
+        modalOverlay.id = "loginPromptModal";
+        modalOverlay.style.position = "fixed";
+        modalOverlay.style.top = "0";
+        modalOverlay.style.left = "0";
+        modalOverlay.style.width = "100%";
+        modalOverlay.style.height = "100%";
+        modalOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+        modalOverlay.style.display = "flex";
+        modalOverlay.style.alignItems = "center";
+        modalOverlay.style.justifyContent = "center";
+        modalOverlay.style.zIndex = "1000";
 
-        const loginButton = document.createElement("button");
-        loginButton.textContent = "Log In";
-        loginButton.addEventListener("click", () => {
+        // Create modal content
+        const modalContent = document.createElement("div");
+        modalContent.style.backgroundColor = "#fff";
+        modalContent.style.padding = "20px";
+        modalContent.style.borderRadius = "10px";
+        modalContent.style.textAlign = "center";
+        modalContent.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.3)";
+        modalContent.innerHTML = `
+            <p style="font-size: 1.5rem; margin-bottom: 20px;">You've reached level 2! Please log in to continue.</p>
+            <button id="loginButton" style="padding: 10px 20px; background-color: #d4af37; color: #000; border: none; border-radius: 5px; cursor: pointer;">Log In</button>
+        `;
+
+        // Append modal content to overlay
+        modalOverlay.appendChild(modalContent);
+        document.body.appendChild(modalOverlay);
+
+        // Add event listener to login button
+        document.getElementById("loginButton").addEventListener("click", () => {
             window.location.href = "../html/auth.html";
         });
-
-        popup.appendChild(message);
-        popup.appendChild(loginButton);
-        document.body.appendChild(popup);
     }
 
     // Update leaderboard with current player's score
