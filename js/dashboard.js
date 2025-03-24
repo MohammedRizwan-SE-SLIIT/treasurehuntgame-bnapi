@@ -12,7 +12,7 @@ function renderLeaderboard(data) {
     paginatedData.forEach((entry, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${start + index + 1}</td>
+            <td>${entry.rank}</td>
             <td>${entry.display_name}</td>
             <td>${entry.highest_level}</td>
             <td>${entry.total_treasures}</td>

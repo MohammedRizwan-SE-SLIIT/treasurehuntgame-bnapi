@@ -44,7 +44,7 @@ try {
 
     // Fetch leaderboard data dynamically
     $leaderboardData = [];
-    $result = $conn->query("SELECT u.username, u.display_name, l.highest_level, l.total_treasures FROM leaderboard l JOIN users u ON l.user_id = u.id ORDER BY l.total_treasures DESC, l.highest_level DESC, l.last_updated ASC LIMIT 100");
+    $result = $conn->query("SELECT u.username, u.display_name, l.highest_level, l.total_treasures, l.rank FROM leaderboard l JOIN users u ON l.user_id = u.id ORDER BY l.rank ASC LIMIT 100");
     while ($row = $result->fetch_assoc()) {
         $leaderboardData[] = $row;
     }

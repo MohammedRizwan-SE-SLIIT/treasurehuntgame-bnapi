@@ -7,10 +7,10 @@ $username = "root";
 $password = "";
 $dbname = "treasurehunt";
 
-// Create database connection
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
+
 if ($conn->connect_error) {
     die(json_encode(['success' => false, 'error' => 'Database connection failed']));
 }
@@ -43,17 +43,17 @@ try {
     $stmt->bind_param("iii", $userId, $highestLevel, $totalTreasures);
     if ($stmt->execute()) {
         $response['success'] = true;
+
+        // Update ranks in the leaderboard
+        $conn->query("SET @rank = 0");
+        $conn->query("UPDATE leaderboard SET rank = (@rank := @rank + 1) ORDER BY total_treasures DESC, highest_level DESC, last_updated ASC");
     } else {
         throw new Exception('Update failed: ' . $stmt->error);
     }
 
-    //Log game start
+    // Log actions
     logAction($conn, $userId, 'GAME_START', 'User started a new game', 101, null);
-
-    //Log treasure collection
     logAction($conn, $userId, 'TREASURE_COLLECTED', 'User collected 5 treasures', 101, 1);
-
-    //Log game end
     logAction($conn, $userId, 'GAME_END', 'User finished the game', 101, null);
 
 } catch (Exception $e) {
