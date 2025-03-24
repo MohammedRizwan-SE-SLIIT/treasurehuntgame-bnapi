@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <style>
+        
+        body {
+            background-image: url('../assets/treasure-map.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            color: #fff;
+            font-family: 'Pirata One', cursive;
+        }
+
+        #dashboardContainer {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #d4af37;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 50px auto;
+            max-width: 800px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #d4af37;
+            text-shadow: 2px 2px 5px #000;
+        }
+
+        .pirate-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .pirate-button {
+            background-color: #d4af37;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pirate-button:hover {
+            background-color: #c0a12b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #fff;
+            text-align: center;
+            color: #fff;
+        }
+
+        th {
+            background-color: #d4af37;
+            color: #000;
+        }
+
+        tr.highlight {
+            background-color: rgba(212, 175, 55, 0.5);
+        }
+    </style>
+</head>
+<body>
+<div id="profileContainer">
+    <div id="profile">
+        <img id="avatar" src="../assets/default-avatar.png" alt="Avatar">
+        <span id="pirateName">Guest</span>
+    </div>
+</div>
+<div id="dashboardContainer" class="pirate-theme">
+    <h1>🏴‍☠️ Pirate's Dashboard</h1>
+    <div id="userStats" class="pirate-box">
+        <p><strong>Username:</strong> <span id="username"></span></p>
+        <p><strong>Highest Level:</strong> <span id="highestLevel"></span></p>
+        <p><strong>Treasures Collected:</strong> <span id="totalTreasures"></span></p>
+    </div>
+    <div id="leaderboard" class="pirate-box">
+        <h2>🏆 Leaderboard</h2>
+        <div class="leaderboard-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Level</th>
+                        <th>Treasures</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardData">
+                    <!-- Leaderboard data will be dynamically inserted -->
+                </tbody>
+            </table>
+        </div>
+        <div id="pagination" class="pagination-container"></div>
+    </div>
+    <button class="pirate-button" onclick="startGame()">⚔️ Start New Game</button>
+    <button class="pirate-button" onclick="logout()">🚪 Logout</button>
+</div>
+
+<script src="../js/dashboard.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function fetchLeaderboardData() {
+            fetch('../php/get_dashboard_data.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const userData = data.userData;
+                        const userProgress = data.userProgress;
+                        const leaderboardData = data.leaderboardData;
+
+                        document.getElementById('pirateName').innerText = userData.display_name || 'Guest';
+                        document.getElementById('avatar').src = userData.avatar_url || '../assets/default-avatar.png';
+                        document.getElementById('username').innerText = userData.username || 'Guest';
+                        document.getElementById('highestLevel').innerText = userProgress.highest_level || 1;
+                        document.getElementById('totalTreasures').innerText = userProgress.total_treasures || 0;
+
+                        const leaderboardTable = document.getElementById('leaderboardData');
+                        leaderboardTable.innerHTML = '';
+                        leaderboardData.forEach((entry, index) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td>${entry.display_name}</td>
+                                <td>${entry.highest_level}</td>
+                                <td>${entry.total_treasures}</td>
+                            `;
+                            leaderboardTable.appendChild(row);
+                        });
+
+                        // Highlight current player's achievements
+                        const currentPlayerRow = document.createElement('tr');
+                        currentPlayerRow.innerHTML = `
+                            <td>--</td>
+                            <td>${userData.display_name}</td>
+                            <td>${userProgress.highest_level || 1}</td>
+                            <td>${userProgress.total_treasures || 0}</td>
+                        `;
+                        currentPlayerRow.style.backgroundColor = '#d4af37';
+                        leaderboardTable.insertBefore(currentPlayerRow, leaderboardTable.firstChild);
+                    } else {
+                        console.error('Error fetching dashboard data:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching dashboard data:', error);
+                });
+        }
+
+        fetchLeaderboardData();
+        setInterval(fetchLeaderboardData, 5000); // Refresh leaderboard every 5 seconds
+    });
+
+    function startGame() {
+        window.location.href = "../html/game.html";
+    }
+
+    function logout() {
+        // Clear localStorage and redirect to login page
+        localStorage.removeItem('displayName');
+        localStorage.removeItem('avatarUrl');
+        localStorage.removeItem('username');
+        localStorage.setItem('guestMode', 'true');
+        window.location.href = "../html/auth.html";
+    }
+</script>
+</body>
+</html>
