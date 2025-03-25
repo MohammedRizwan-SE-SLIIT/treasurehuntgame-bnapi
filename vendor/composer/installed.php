@@ -3,7 +3,11 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
+<<<<<<< HEAD
         'reference' => 'c7aedc71b112ee4ce5ec378c63945fd45f1db91f',
+=======
+        'reference' => 'a7af0c8c6f015e7b0a5a83769f3c63ffa55267c7',
+>>>>>>> feature-game-logic
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +17,11 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
+<<<<<<< HEAD
             'reference' => 'c7aedc71b112ee4ce5ec378c63945fd45f1db91f',
+=======
+            'reference' => 'a7af0c8c6f015e7b0a5a83769f3c63ffa55267c7',
+>>>>>>> feature-game-logic
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
