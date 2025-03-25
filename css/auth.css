@@ -1,0 +1,64 @@
+body {
+    background: linear-gradient(135deg, #2b1055, #7597de);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.auth-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    text-align: center;
+}
+
+.logo {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+.tab-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.tab {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f39c12;
+    color: white;
+}
+
+.tab.active {
+    background-color: #e74c3c;
+}
+
+.form-container {
+    display: none; /* Hidden by default */
+}
+
+.form-container:not(.hidden) {
+    display: block; /* Show active form */
+}
+
+input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+button {
+    width: calc(100% - 20px);
+}
+
+/* Google Button */
+.google-btn {
+    background-color: #db4437 !important;
+}
+
