@@ -33,9 +33,19 @@
             <form id="registerForm">
                 <input type="text" id="register-username" placeholder="Enter your username" required>
                 <input type="email" id="register-email" placeholder="Enter your email" required>
-                <input type="password" id="register-password" placeholder="Create a password" required>
+                <div style="position: relative;">
+                    <input type="password" id="register-password" placeholder="Create a password" required>
+                    <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                        👁️
+                    </button>
+                </div>
+                <div style="position: relative;">
+                    <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+                    <button type="button" id="toggle-confirm-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                        👁️
+                    </button>
+                </div>
                 <button type="button" id="suggest-password">Suggest Strong Password</button>
-                <input type="password" id="confirm-password" placeholder="Confirm your password" required>
                 <button type="submit" id="register-btn">Register</button>
             </form>
         </div>
@@ -60,5 +70,45 @@
 
 
     <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const togglePasswordButton = document.getElementById('toggle-password');
+            const toggleConfirmPasswordButton = document.getElementById('toggle-confirm-password');
+            const passwordInput = document.getElementById('register-password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const suggestPasswordButton = document.getElementById('suggest-password');
+
+            // Toggle visibility for password
+            togglePasswordButton.addEventListener('click', function () {
+                const isPasswordVisible = passwordInput.type === 'text';
+                passwordInput.type = isPasswordVisible ? 'password' : 'text';
+                togglePasswordButton.textContent = isPasswordVisible ? '👁️' : '🙈';
+            });
+
+            // Toggle visibility for confirm password
+            toggleConfirmPasswordButton.addEventListener('click', function () {
+                const isConfirmPasswordVisible = confirmPasswordInput.type === 'text';
+                confirmPasswordInput.type = isConfirmPasswordVisible ? 'password' : 'text';
+                toggleConfirmPasswordButton.textContent = isConfirmPasswordVisible ? '👁️' : '🙈';
+            });
+
+            // Generate a strong password
+            suggestPasswordButton.addEventListener('click', function () {
+                const strongPassword = generateStrongPassword();
+                passwordInput.value = strongPassword;
+                confirmPasswordInput.value = strongPassword;
+            });
+
+            // Function to generate a strong password
+            function generateStrongPassword() {
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?";
+                let password = "";
+                for (let i = 0; i < 12; i++) {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return password;
+            }
+        });
+    </script>
 </body>
 </html>

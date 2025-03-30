@@ -30,7 +30,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 $host = 'localhost';
-$dbname = 'treasure_hunt';
+$dbname = 'treasurehunt';
 $user = 'root';
 $pass = '';
 

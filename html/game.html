@@ -51,15 +51,16 @@
     <script src="../js/game.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const displayName = localStorage.getItem('displayName') || 'Guest';
-            const avatarUrl = localStorage.getItem('avatarUrl') || '../assets/default-avatar.png';
+            const username = localStorage.getItem('username');
+            const displayName = username || 'Guest';
+            const avatarUrl = username 
+                ? `../assets/avatars/${username}.png` // Example: Use a specific avatar for logged-in users
+                : '../assets/default-avatar.png';
 
             document.getElementById('pirateName').innerText = displayName;
             document.getElementById('avatar').src = avatarUrl;
 
             document.getElementById('logoutButton').addEventListener('click', function() {
-                localStorage.removeItem('displayName');
-                localStorage.removeItem('avatarUrl');
                 localStorage.removeItem('username');
                 localStorage.setItem('guestMode', 'true');
                 window.location.href = "../html/auth.html";
