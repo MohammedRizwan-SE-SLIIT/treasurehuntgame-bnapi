@@ -62,3 +62,61 @@ button {
     background-color: #db4437 !important;
 }
 
+#avatar-selection {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#avatar-selection h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    justify-items: center;
+    margin-bottom: 15px;
+}
+
+.avatar-card {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+    cursor: pointer;
+}
+
+.avatar-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-card:hover {
+    transform: scale(1.1);
+    border-color: #f39c12;
+}
+
+.avatar-card.selected {
+    border-color: #e74c3c;
+}
+
+.avatar-button {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.avatar-button:hover {
+    background-color: #e67e22;
+}
+

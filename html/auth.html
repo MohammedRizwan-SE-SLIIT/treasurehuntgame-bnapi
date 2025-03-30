@@ -36,16 +36,22 @@
                 <div style="position: relative;">
                     <input type="password" id="register-password" placeholder="Create a password" required>
                     <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
-                        👁️
+                        <img src="../assets/eye-icon.png" alt="Toggle Password" style="width: 20px; height: 20px;">
                     </button>
                 </div>
                 <div style="position: relative;">
                     <input type="password" id="confirm-password" placeholder="Confirm your password" required>
                     <button type="button" id="toggle-confirm-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
-                        👁️
+                        <img src="../assets/eye-icon.png" alt="Toggle Password" style="width: 20px; height: 20px;">
                     </button>
                 </div>
                 <button type="button" id="suggest-password">Suggest Strong Password</button>
+                <div id="avatar-selection">
+                    <h3>Choose Your Pirate Avatar</h3>
+                    <div id="avatar-grid" class="avatar-grid"></div>
+                    <button type="button" id="suggest-avatars" class="avatar-button">Suggest Avatars</button>
+                    <input type="hidden" id="avatar-url" name="avatar-url">
+                </div>
                 <button type="submit" id="register-btn">Register</button>
             </form>
         </div>
@@ -70,6 +76,7 @@
 
 
     <script src="../js/auth.js"></script>
+    <script src="../js/avatar-selector.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const togglePasswordButton = document.getElementById('toggle-password');
@@ -82,14 +89,12 @@
             togglePasswordButton.addEventListener('click', function () {
                 const isPasswordVisible = passwordInput.type === 'text';
                 passwordInput.type = isPasswordVisible ? 'password' : 'text';
-                togglePasswordButton.textContent = isPasswordVisible ? '👁️' : '🙈';
             });
 
             // Toggle visibility for confirm password
             toggleConfirmPasswordButton.addEventListener('click', function () {
                 const isConfirmPasswordVisible = confirmPasswordInput.type === 'text';
                 confirmPasswordInput.type = isConfirmPasswordVisible ? 'password' : 'text';
-                toggleConfirmPasswordButton.textContent = isConfirmPasswordVisible ? '👁️' : '🙈';
             });
 
             // Generate a strong password
@@ -108,6 +113,10 @@
                 }
                 return password;
             }
+
+            // Initialize avatar suggestions
+            showAvatarSuggestions();
+            document.getElementById('suggest-avatars').addEventListener('click', showAvatarSuggestions);
         });
     </script>
 </body>
