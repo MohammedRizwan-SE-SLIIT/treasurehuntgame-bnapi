@@ -22,7 +22,12 @@
             <h2>Login</h2>
             <form id="loginForm">
                 <input type="text" id="login-username" placeholder="Enter your username" required>
-                <input type="password" id="login-password" placeholder="Enter your password" required>
+                <div style="position: relative;">
+                    <input type="password" id="login-password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" style="position: absolute; right: 50%; top: 50%; transform: translate(50%, -50%); background: none; border: none; cursor: pointer;">
+                        <img src="../assets/treasureclose.png" alt="Toggle Password" style="width: 24px; height: 24px;">
+                    </button>
+                </div>
                 <button type="submit" id="login-btn">Login</button>
             </form>
         </div>
@@ -33,24 +38,23 @@
             <form id="registerForm">
                 <input type="text" id="register-username" placeholder="Enter your username" required>
                 <input type="email" id="register-email" placeholder="Enter your email" required>
-                <div style="position: relative;">
+                <div class="password-container">
                     <input type="password" id="register-password" placeholder="Create a password" required>
-                    <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
-                        <img src="../assets/eye-icon.png" alt="Toggle Password" style="width: 20px; height: 20px;">
-                    </button>
-                </div>
-                <div style="position: relative;">
-                    <input type="password" id="confirm-password" placeholder="Confirm your password" required>
-                    <button type="button" id="toggle-confirm-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
-                        <img src="../assets/eye-icon.png" alt="Toggle Password" style="width: 20px; height: 20px;">
-                    </button>
+                    <i class="fas fa-eye toggle-password" id="toggle-password"></i>
                 </div>
                 <button type="button" id="suggest-password">Suggest Strong Password</button>
+                <div class="password-container">
+                    <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+                    <i class="fas fa-eye toggle-password" id="toggle-confirm-password"></i>
+                </div>
                 <div id="avatar-selection">
                     <h3>Choose Your Pirate Avatar</h3>
-                    <div id="avatar-grid" class="avatar-grid"></div>
-                    <button type="button" id="suggest-avatars" class="avatar-button">Suggest Avatars</button>
-                    <input type="hidden" id="avatar-url" name="avatar-url">
+                    <div class="avatar-grid" id="avatar-grid"></div>
+                    <button type="button" id="suggest-avatars" class="pirate-button">🏴‍☠️ Show More Pirates</button>
+                    <div id="avatar-preview-container">
+                        <img id="avatar-preview" src="../assets/default-avatar.png" alt="Selected Pirate">
+                    </div>
+                    <input type="hidden" id="selected-avatar" name="avatar_url">
                 </div>
                 <button type="submit" id="register-btn">Register</button>
             </form>
@@ -58,9 +62,16 @@
 
         <!-- Pirate Persona Creation Form -->
         <div id="pirate-persona-form" class="form-container hidden">
-            <h2>Set Up Your Pirate Persona</h2>
-            <input type="text" id="display-name" placeholder="Pirate Name" required>
-            <input type="url" id="avatar-url" placeholder="Yo ho ho! Drop yer Avatar URL">
+            <h2>Set Your Pirate Identity</h2>
+            <div id="avatar-selection">
+                <div class="avatar-grid" id="avatar-grid"></div>
+                <button type="button" id="suggest-avatars" class="pirate-button">🏴‍☠️ Show More Pirates</button>
+                <div id="avatar-preview-container">
+                    <img id="avatar-preview" src="../assets/default-avatar.png" alt="Selected Pirate">
+                </div>
+            </div>
+            <input type="text" id="display-name" placeholder="Your Pirate Name" required>
+            <input type="hidden" id="selected-avatar" name="avatar_url">
             <button id="save-persona-btn">Hoist the Colors!</button>
         </div>
 
@@ -76,47 +87,17 @@
 
 
     <script src="../js/auth.js"></script>
-    <script src="../js/avatar-selector.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const togglePasswordButton = document.getElementById('toggle-password');
-            const toggleConfirmPasswordButton = document.getElementById('toggle-confirm-password');
-            const passwordInput = document.getElementById('register-password');
-            const confirmPasswordInput = document.getElementById('confirm-password');
-            const suggestPasswordButton = document.getElementById('suggest-password');
-
-            // Toggle visibility for password
-            togglePasswordButton.addEventListener('click', function () {
-                const isPasswordVisible = passwordInput.type === 'text';
-                passwordInput.type = isPasswordVisible ? 'password' : 'text';
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const input = this.previousElementSibling;
+                    const isPasswordVisible = input.type === 'text';
+                    input.type = isPasswordVisible ? 'password' : 'text';
+                    this.querySelector('img').src = isPasswordVisible ? '../assets/treasureclose.png' : '../assets/treasureopen.png';
+                });
             });
-
-            // Toggle visibility for confirm password
-            toggleConfirmPasswordButton.addEventListener('click', function () {
-                const isConfirmPasswordVisible = confirmPasswordInput.type === 'text';
-                confirmPasswordInput.type = isConfirmPasswordVisible ? 'password' : 'text';
-            });
-
-            // Generate a strong password
-            suggestPasswordButton.addEventListener('click', function () {
-                const strongPassword = generateStrongPassword();
-                passwordInput.value = strongPassword;
-                confirmPasswordInput.value = strongPassword;
-            });
-
-            // Function to generate a strong password
-            function generateStrongPassword() {
-                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?";
-                let password = "";
-                for (let i = 0; i < 12; i++) {
-                    password += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                return password;
-            }
-
-            // Initialize avatar suggestions
-            showAvatarSuggestions();
-            document.getElementById('suggest-avatars').addEventListener('click', showAvatarSuggestions);
         });
     </script>
 </body>

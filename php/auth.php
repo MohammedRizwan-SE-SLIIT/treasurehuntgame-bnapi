@@ -65,16 +65,16 @@ function verifyJWT($token) {
     }
 }
 
-function registerUser($pdo, $username, $email, $password) {
+function registerUser($pdo, $username, $email, $password, $avatarUrl) {
     $salt = bin2hex(random_bytes(16)); // Generate a random salt
     $hashedPassword = password_hash($password . $salt, PASSWORD_DEFAULT); // Hash the password with the salt
     $passwordWithSalt = $salt . $hashedPassword; // Concatenate salt and hashed password
 
     $stmt = $pdo->prepare("
-        INSERT INTO users (username, email, password) 
-        VALUES (?, ?, ?)
+        INSERT INTO users (username, email, password, avatar_url) 
+        VALUES (?, ?, ?, ?)
     ");
-    $stmt->execute([$username, $email, $passwordWithSalt]);
+    $stmt->execute([$username, $email, $passwordWithSalt, $avatarUrl]);
     error_log("New user registered Name: $username");
     return $pdo->lastInsertId();
 }
@@ -105,21 +105,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $input['username'] ?? '';
             $email = $input['email'] ?? '';
             $password = $input['password'] ?? '';
+            $avatarUrl = $input['avatarUrl'] ?? '';
 
-            if (empty($username) || empty($email) || empty($password)) {
-                echo json_encode(['success' => false, 'error' => 'All fields are required.']);
+            if (empty($username) || empty($email) || empty($password) || empty($avatarUrl)) {
+                echo json_encode(['success' => false, 'error' => 'All fields are required, including avatar selection.']);
                 exit;
             }
 
-            $userId = registerUser($pdo, $username, $email, $password);
-            $token = generateJWT($userId, $username);
-            error_log("JWT token generated for user ID: $userId");
+            try {
+                $userId = registerUser($pdo, $username, $email, $password, $avatarUrl);
+                $token = generateJWT($userId, $username);
+                error_log("JWT token generated for user ID: $userId");
 
-            $_SESSION['userId'] = $userId;
-            $_SESSION['username'] = $username;
+                $_SESSION['userId'] = $userId;
+                $_SESSION['username'] = $username;
 
-            echo json_encode(['success' => true, 'userId' => $userId, 'token' => $token, 'message' => 'Registration successful.']);
-            error_log("Response sent for username: $username");
+                echo json_encode(['success' => true, 'userId' => $userId, 'token' => $token, 'message' => 'Registration successful.']);
+                error_log("Response sent for username: $username");
+            } catch (Exception $e) {
+                error_log("Error during registration: " . $e->getMessage());
+                echo json_encode(['success' => false, 'error' => 'Registration failed. Please try again.']);
+            }
             exit;
 
         case 'login':
@@ -131,15 +137,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            $userId = verifyPassword($pdo, $username, $password);
+            $stmt = $pdo->prepare("SELECT id, avatar_url FROM users WHERE username = ?");
+            $stmt->execute([$username]);
+            $user = $stmt->fetch();
 
-            if ($userId) {
+            if ($user && verifyPassword($pdo, $username, $password)) {
+                $userId = $user['id'];
+                $avatarUrl = $user['avatar_url'];
                 $token = generateJWT($userId, $username);
 
                 $_SESSION['userId'] = $userId;
                 $_SESSION['username'] = $username;
 
-                echo json_encode(['success' => true, 'userId' => $userId, 'token' => $token, 'message' => 'Login successful.']);
+                echo json_encode([
+                    'success' => true,
+                    'userId' => $userId,
+                    'token' => $token,
+                    'avatarUrl' => $avatarUrl,
+                    'message' => 'Login successful.'
+                ]);
                 exit;
             } else {
                 echo json_encode(['success' => false, 'error' => 'Invalid username or password.']);

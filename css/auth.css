@@ -57,9 +57,29 @@ button {
     width: calc(100% - 20px);
 }
 
+button img {
+    width: 20px;
+    height: 20px;
+}
+
 /* Google Button */
 .google-btn {
     background-color: #db4437 !important;
+}
+
+#common-action-btn {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: calc(100% - 20px);
+}
+
+#common-action-btn:hover {
+    background-color: #e67e22;
 }
 
 #avatar-selection {
