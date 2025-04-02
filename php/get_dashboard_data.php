@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php'; 
 require_once '../vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -13,7 +13,7 @@ header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
 session_start();
 
-// Handle preflight request
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
@@ -40,11 +40,11 @@ $jwt = $matches[1];
 error_log("JWT Token: " . $jwt); // Log the JWT token
 
 try {
-    // Decode JWT
+
     $decoded = JWT::decode($jwt, new Key(JWT_SECRET_KEY, 'HS256'));
     error_log("Decoded JWT: " . json_encode($decoded)); 
 
-    // Extract user ID
+    // Get UID
     $userId = $decoded->userId ?? null;
     if (!$userId) {
         throw new Exception("Invalid JWT: User ID missing.");
@@ -59,7 +59,7 @@ try {
         throw new Exception("User not found in the database.");
     }
 
-    // Fetch user progress
+    // Get user progress
     $stmt = $pdo->prepare("
         SELECT MAX(level_id) AS highest_level, SUM(treasures_collected) AS total_treasures
         FROM user_progress

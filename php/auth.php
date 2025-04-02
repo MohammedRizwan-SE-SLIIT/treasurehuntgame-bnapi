@@ -1,6 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php'; // Use the existing config.php for database connection
+require_once '../vendor/autoload.php';
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -18,34 +22,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 session_start();
 
-require_once '../config.php'; 
 $autoloadPath = realpath(__DIR__ . '/../vendor/autoload.php');
 if (!$autoloadPath) {
     error_log("Error: autoload.php not found at expected path.");
-    die(json_encode(['success' => false, 'error' => 'Server configuration error.']));
+    echo json_encode(['success' => false, 'error' => 'Server configuration error.']);
+    exit;
 }
 require $autoloadPath; // Dynamically resolved path to autoload.php
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-
-$host = 'localhost';
-$dbname = 'treasurehunt';
-$user = 'root';
-$pass = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    error_log("Database connection failed: " . $e->getMessage());
-    die("Connection failed: " . $e->getMessage());
-}
-
-// SECRET_KEY = ''; // Replace with a strong secret key
-
 function generateJWT($userId, $username) {
-    
     $payload = [
         'userId' => $userId,
         'username' => $username,
@@ -56,7 +41,6 @@ function generateJWT($userId, $username) {
 }
 
 function verifyJWT($token) {
- 
     try {
         $decoded = JWT::decode($token, new Key(JWT_SECRET_KEY, 'HS256'));
         return $decoded;
@@ -75,7 +59,7 @@ function registerUser($pdo, $username, $email, $password, $avatarUrl) {
         VALUES (?, ?, ?, ?)
     ");
     $stmt->execute([$username, $email, $passwordWithSalt, $avatarUrl]);
-    error_log("New user registered Name: $username");
+    error_log("New user registered: $username");
     return $pdo->lastInsertId();
 }
 
