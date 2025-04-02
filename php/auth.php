@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $input['username'] ?? '';
             $email = $input['email'] ?? '';
             $password = $input['password'] ?? '';
-            $avatarUrl = $input['avatarUrl'] ?? '';
+            $avatarUrl = $input['avatarUrl'] ?? ''; // Ensure avatarUrl is retrieved
 
             if (empty($username) || empty($email) || empty($password) || empty($avatarUrl)) {
                 echo json_encode(['success' => false, 'error' => 'All fields are required, including avatar selection.']);
@@ -115,13 +115,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $userId = registerUser($pdo, $username, $email, $password, $avatarUrl);
                 $token = generateJWT($userId, $username);
-                error_log("JWT token generated for user ID: $userId");
 
                 $_SESSION['userId'] = $userId;
                 $_SESSION['username'] = $username;
 
                 echo json_encode(['success' => true, 'userId' => $userId, 'token' => $token, 'message' => 'Registration successful.']);
-                error_log("Response sent for username: $username");
             } catch (Exception $e) {
                 error_log("Error during registration: " . $e->getMessage());
                 echo json_encode(['success' => false, 'error' => 'Registration failed. Please try again.']);

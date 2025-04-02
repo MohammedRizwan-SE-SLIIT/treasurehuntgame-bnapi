@@ -1,59 +1,65 @@
-const AVATAR_PARAMS = {
-    topTypes: ['NoHair', 'Eyepatch', 'Hat', 'Hijab', 'Turban', 'WinterHat1', 'LongHairBigHair'],
-    accessories: ['Blank', 'Kurt', 'Prescription01', 'Round', 'Sunglasses', 'Wayfarers'],
-    hairColors: ['Auburn', 'Black', 'Blonde', 'Brown', 'PastelPink', 'Platinum', 'Red', 'SilverGray'],
-    facialHair: ['Blank', 'BeardMedium', 'MoustacheFancy', 'MoustacheMagnum']
-};
+document.addEventListener("DOMContentLoaded", function () {
+    const avatarGrid = document.getElementById("avatar-grid");
+    const suggestAvatarsButton = document.getElementById("suggest-avatars");
+    const selectedAvatarInput = document.getElementById("selected-avatar");
 
-function generateRandomAvatar() {
-    const params = new URLSearchParams({
-        avatarStyle: 'Circle',
-        topType: AVATAR_PARAMS.topTypes[Math.floor(Math.random() * AVATAR_PARAMS.topTypes.length)],
-        accessoriesType: AVATAR_PARAMS.accessories[Math.floor(Math.random() * AVATAR_PARAMS.accessories.length)],
-        hairColor: AVATAR_PARAMS.hairColors[Math.floor(Math.random() * AVATAR_PARAMS.hairColors.length)],
-        facialHairType: AVATAR_PARAMS.facialHair[Math.floor(Math.random() * AVATAR_PARAMS.facialHair.length)],
-        clotheType: ['BlazerShirt', 'CollarSweater', 'GraphicShirt', 'Hoodie', 'Overall'][Math.floor(Math.random() * 5)],
-        eyeType: ['Default', 'Close', 'Cry', 'Dizzy', 'EyeRoll', 'Happy', 'Hearts', 'Side'][Math.floor(Math.random() * 8)],
-        mouthType: ['Concerned', 'Default', 'Disbelief', 'Eating', 'Grimace', 'Sad', 'ScreamOpen', 'Serious'][Math.floor(Math.random() * 8)],
-        skinColor: ['Tanned', 'Yellow', 'Pale', 'Light', 'Brown', 'DarkBrown', 'Black'][Math.floor(Math.random() * 7)]
-    });
-    
-    return `https://avataaars.io/?${params.toString()}`;
-}
+    const AVATAR_PARAMS = {
+        topTypes: ['NoHair', 'Eyepatch', 'Hat', 'Hijab', 'Turban', 'WinterHat1', 'LongHairBigHair'],
+        accessories: ['Blank', 'Kurt', 'Prescription01', 'Round', 'Sunglasses', 'Wayfarers'],
+        hairColors: ['Auburn', 'Black', 'Blonde', 'Brown', 'PastelPink', 'Platinum', 'Red', 'SilverGray'],
+        facialHair: ['Blank', 'BeardMedium', 'MoustacheFancy', 'MoustacheMagnum'],
+        clotheTypes: ['BlazerShirt', 'CollarSweater', 'GraphicShirt', 'Hoodie', 'Overall'],
+        eyeTypes: ['Default', 'Close', 'Cry', 'Dizzy', 'EyeRoll', 'Happy', 'Hearts', 'Side'],
+        mouthTypes: ['Concerned', 'Default', 'Disbelief', 'Eating', 'Grimace', 'Sad', 'ScreamOpen', 'Serious'],
+        skinColors: ['Tanned', 'Yellow', 'Pale', 'Light', 'Brown', 'DarkBrown', 'Black']
+    };
 
-let suggestedAvatars = [];
+    function generateRandomAvatar() {
+        const params = new URLSearchParams({
+            avatarStyle: 'Circle',
+            topType: AVATAR_PARAMS.topTypes[Math.floor(Math.random() * AVATAR_PARAMS.topTypes.length)],
+            accessoriesType: AVATAR_PARAMS.accessories[Math.floor(Math.random() * AVATAR_PARAMS.accessories.length)],
+            hairColor: AVATAR_PARAMS.hairColors[Math.floor(Math.random() * AVATAR_PARAMS.hairColors.length)],
+            facialHairType: AVATAR_PARAMS.facialHair[Math.floor(Math.random() * AVATAR_PARAMS.facialHair.length)],
+            clotheType: AVATAR_PARAMS.clotheTypes[Math.floor(Math.random() * AVATAR_PARAMS.clotheTypes.length)],
+            eyeType: AVATAR_PARAMS.eyeTypes[Math.floor(Math.random() * AVATAR_PARAMS.eyeTypes.length)],
+            mouthType: AVATAR_PARAMS.mouthTypes[Math.floor(Math.random() * AVATAR_PARAMS.mouthTypes.length)],
+            skinColor: AVATAR_PARAMS.skinColors[Math.floor(Math.random() * AVATAR_PARAMS.skinColors.length)],
+            randomSeed: Math.random().toString(36).substring(2) // Generate a unique random seed
+        });
 
-function generateAvatarBatch() {
-    const batch = [];
-    for (let i = 0; i < 6; i++) {
-        batch.push(generateRandomAvatar());
+        return `https://avataaars.io/?${params.toString()}`;
     }
-    return batch;
-}
 
-function showAvatarSuggestions() {
-    suggestedAvatars = [...suggestedAvatars, ...generateAvatarBatch()];
-    const container = document.getElementById('avatar-grid');
-    container.innerHTML = '';
-    
-    suggestedAvatars.slice(-12).forEach((url, index) => {
-        const avatarCard = document.createElement('div');
-        avatarCard.className = 'avatar-card';
-        avatarCard.innerHTML = `
-            <img src="${url}" alt="Avatar ${index + 1}" onclick="selectAvatar(this)">
-            <button onclick="saveAvatar('${url}')">Choose Pirate</button>
-        `;
-        container.appendChild(avatarCard);
-    });
-}
+    function generateRandomAvatars(count = 4) {
+        avatarGrid.innerHTML = ""; // Clear existing avatars
+        for (let i = 0; i < count; i++) {
+            const avatarUrl = generateRandomAvatar();
+            const avatarCard = document.createElement("div");
+            avatarCard.className = "avatar-card";
+            const avatarImage = document.createElement("img");
+            avatarImage.src = avatarUrl;
+            avatarImage.alt = "Pirate Avatar";
+            avatarImage.addEventListener("click", () => selectAvatar(avatarUrl)); // Bind click event
+            avatarCard.appendChild(avatarImage);
+            avatarGrid.appendChild(avatarCard);
+        }
+    }
 
-function selectAvatar(element) {
-    document.querySelectorAll('.avatar-card img').forEach(img => 
-        img.classList.remove('selected'));
-    element.classList.add('selected');
-}
+    function selectAvatar(url) {
+        document.querySelectorAll(".avatar-card img").forEach((img) => img.classList.remove("selected"));
+        const selectedImage = document.querySelector(`img[src="${url}"]`);
+        if (selectedImage) {
+            selectedImage.classList.add("selected");
+        }
+        selectedAvatarInput.value = url; // Update the hidden input field
+    }
 
-function saveAvatar(url) {
-    localStorage.setItem('selectedAvatar', url);
-    document.getElementById('avatar-preview').src = url;
-}
+    suggestAvatarsButton.addEventListener("click", () => generateRandomAvatars(4));
+
+    // Expose the function to the global scope
+    window.generateRandomAvatars = generateRandomAvatars;
+
+    // Generate initial avatars
+    generateRandomAvatars();
+});

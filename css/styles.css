@@ -1,11 +1,114 @@
+/* Common Layout */
 body {
-    background: url('../assets/map.png') no-repeat center center fixed;
-    background-size: cover;
-    font-family: 'Arial', sans-serif;
-    color: #fff;
-    text-align: center;
     margin: 0;
     padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #2b1055, #7597de);
+    overflow: hidden; /* Prevent scrolling */
+}
+
+.auth-container {
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* Common Buttons */
+.common-action-btn {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: calc(100% - 20px);
+}
+
+.common-action-btn:hover {
+    background-color: #e67e22;
+}
+
+/* Input Fields */
+input[type="text"], input[type="password"] {
+    width: 100%; /* Ensure consistent width for all input fields */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Include padding and border in the total width */
+}
+
+/* Remove conflicting styles */
+.password-container input {
+    padding-right: 50px; /* Ensure sufficient space for the toggle button */
+}
+
+/* Password Container */
+.password-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.password-container button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.password-container button img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Avatar Selection */
+#avatar-selection {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    justify-items: center;
+    margin-bottom: 15px;
+}
+
+.avatar-card {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+    cursor: pointer;
+}
+
+.avatar-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-card:hover {
+    transform: scale(1.1);
+    border-color: #f39c12;
+}
+
+.avatar-card.selected {
+    border-color: #e74c3c;
 }
 
 #gameContainer {

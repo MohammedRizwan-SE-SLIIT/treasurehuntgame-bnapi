@@ -4,34 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Hunt for Numbers - Login/Register</title>
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/auth.css">
 </head>
 <body>
     <div class="auth-container">
-
         <img src="../assets/treasure.png" alt="Treasure Hunt Logo" class="logo">
 
- 
         <div class="tab-container">
             <button id="login-tab" class="tab active">Login</button>
             <button id="register-tab" class="tab">Register</button>
         </div>
 
-   
         <div id="login-form" class="form-container">
             <h2>Login</h2>
             <form id="loginForm">
                 <input type="text" id="login-username" placeholder="Enter your username" required>
-                <div style="position: relative;">
+                <div class="password-container">
                     <input type="password" id="login-password" placeholder="Enter your password" required>
-                    <button type="button" class="toggle-password" style="position: absolute; right: 50%; top: 50%; transform: translate(50%, -50%); background: none; border: none; cursor: pointer;">
-                        <img src="../assets/treasureclose.png" alt="Toggle Password" style="width: 24px; height: 24px;">
+                    <button type="button" class="toggle-password">
+                        <img src="../assets/treasureclose.png" alt="Toggle Password">
                     </button>
                 </div>
-                <button type="submit" id="login-btn">Login</button>
+                <button type="submit" id="login-btn" class="common-action-btn">Login</button>
             </form>
         </div>
-
 
         <div id="register-form" class="form-container hidden">
             <h2>Register</h2>
@@ -40,65 +37,39 @@
                 <input type="email" id="register-email" placeholder="Enter your email" required>
                 <div class="password-container">
                     <input type="password" id="register-password" placeholder="Create a password" required>
-                    <i class="fas fa-eye toggle-password" id="toggle-password"></i>
+                    <button type="button" class="toggle-password">
+                        <img src="../assets/treasureclose.png" alt="Toggle Password">
+                    </button>
                 </div>
-                <button type="button" id="suggest-password">Suggest Strong Password</button>
+                <button type="button" id="suggest-password" class="common-action-btn">Suggest Strong Password</button>
                 <div class="password-container">
                     <input type="password" id="confirm-password" placeholder="Confirm your password" required>
-                    <i class="fas fa-eye toggle-password" id="toggle-confirm-password"></i>
+                    <button type="button" class="toggle-password">
+                        <img src="../assets/treasureclose.png" alt="Toggle Password">
+                    </button>
                 </div>
                 <div id="avatar-selection">
                     <h3>Choose Your Pirate Avatar</h3>
                     <div class="avatar-grid" id="avatar-grid"></div>
-                    <button type="button" id="suggest-avatars" class="pirate-button">🏴‍☠️ Show More Pirates</button>
-                    <div id="avatar-preview-container">
-                        <img id="avatar-preview" src="../assets/default-avatar.png" alt="Selected Pirate">
-                    </div>
+                    <button type="button" id="suggest-avatars" class="common-action-btn">🏴‍☠️ Show More Pirates</button>
                     <input type="hidden" id="selected-avatar" name="avatar_url">
                 </div>
-                <button type="submit" id="register-btn">Register</button>
+                <button type="submit" id="register-btn" class="common-action-btn">Register</button>
             </form>
         </div>
 
-        <!-- Pirate Persona Creation Form -->
-        <div id="pirate-persona-form" class="form-container hidden">
-            <h2>Set Your Pirate Identity</h2>
-            <div id="avatar-selection">
-                <div class="avatar-grid" id="avatar-grid"></div>
-                <button type="button" id="suggest-avatars" class="pirate-button">🏴‍☠️ Show More Pirates</button>
-                <div id="avatar-preview-container">
-                    <img id="avatar-preview" src="../assets/default-avatar.png" alt="Selected Pirate">
-                </div>
-            </div>
-            <input type="text" id="display-name" placeholder="Your Pirate Name" required>
-            <input type="hidden" id="selected-avatar" name="avatar_url">
-            <button id="save-persona-btn">Hoist the Colors!</button>
-        </div>
-
-
         <div class="guest-access">
-            <p>Or Play as a Guest</p>
-            <button id="guest-btn">Start as Guest</button>
+            <button id="guest-btn" class="common-action-btn">Start as Guest</button>
         </div>
 
- 
         <div id="message-box"></div>
     </div>
 
-
+    <script src="../js/avatar-selector.js"></script>
     <script src="../js/auth.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-            togglePasswordButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const input = this.previousElementSibling;
-                    const isPasswordVisible = input.type === 'text';
-                    input.type = isPasswordVisible ? 'password' : 'text';
-                    this.querySelector('img').src = isPasswordVisible ? '../assets/treasureclose.png' : '../assets/treasureopen.png';
-                });
-            });
-        });
+        // Directly call the function after scripts are loaded
+        generateRandomAvatars(4);
     </script>
 </body>
 </html>

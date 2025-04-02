@@ -10,11 +10,13 @@ body {
 
 .auth-container {
     background: rgba(255, 255, 255, 0.9);
-    padding: 30px;
+    padding: 20px;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 400px;
+    width: 90%;
+    max-width: 400px;
     text-align: center;
+    overflow: hidden; 
 }
 
 .logo {
@@ -40,7 +42,7 @@ body {
 }
 
 .form-container {
-    display: none; /* Hidden by default */
+    display: none;
 }
 
 .form-container:not(.hidden) {
@@ -95,7 +97,7 @@ button img {
 
 .avatar-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-template-columns: repeat(2, 1fr); /* Ensure 2 avatars per row */
     gap: 10px;
     justify-items: center;
     margin-bottom: 15px;
@@ -138,5 +140,67 @@ button img {
 
 .avatar-button:hover {
     background-color: #e67e22;
+}
+
+/* Password Container */
+.password-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.password-container input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 50px; /* Increase padding to avoid overlap with the toggle button */
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    pointer-events: auto; /* Ensure the input field is clickable */
+}
+
+.auth-container .password-container button {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1; /* Ensure the button is above the input field */
+    pointer-events: auto; /* Ensure the button is clickable */
+}
+
+.auth-container .password-container button img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Remove conflicting styles from styles.css */
+input[type="text"], input[type="password"] {
+    width: 100%; /* Ensure consistent width for all input fields */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Include padding and border in the total width */
+    padding-right: 50px; /* Ensure consistent padding for all input fields */
+}
+
+@media (max-width: 600px) {
+    .auth-container {
+        padding: 15px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    input, button {
+        width: 100%;
+    }
+
+    .avatar-grid {
+        grid-template-columns: repeat(2, 1fr); /* Maintain 2 avatars per row on smaller screens */
+    }
 }
 
