@@ -22,6 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 session_start();
 
+// Ensure $pdo is accessible
+global $pdo;
+
+if (!isset($pdo)) {
+    error_log("Database connection (PDO) is not available.");
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Server error: Database connection not available.']);
+    exit;
+}
+
 $autoloadPath = realpath(__DIR__ . '/../vendor/autoload.php');
 if (!$autoloadPath) {
     error_log("Error: autoload.php not found at expected path.");
