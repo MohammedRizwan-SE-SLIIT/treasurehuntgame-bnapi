@@ -1,15 +1,16 @@
 body {
-    background-image: url('../assets/Map.png');
-    background-size: 50%;
-    background-repeat: no-repeat;
-    background-position: center;
-    font-family: 'Pirata One', cursive;
+    background-image: url('../assets/treasure-map.jpg');
+    background-size: cover;
+    background-attachment: fixed;
     color: #fff;
+    font-family: 'Pirata One', cursive;
+    margin: 0;
+    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
+    overflow: hidden; /* Prevent scrolling */
 }
 
 #profileContainer {
@@ -45,6 +46,23 @@ body {
     color: #d4af37; /* Changing to a visible color */
 }
 
+#dashboardContainer {
+    background: rgba(0, 0, 0, 0.8);
+    border: 3px solid #d4af37;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 50px auto;
+    max-width: 800px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    width: 90%;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #d4af37;
+    text-shadow: 2px 2px 5px #000;
+}
+
 .pirate-theme {
     background: rgba(0, 0, 0, 0.7);
     padding: 20px;
@@ -58,9 +76,11 @@ body {
 
 .pirate-box {
     background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #d4af37;
+    border-radius: 10px;
     padding: 15px;
     margin-bottom: 20px;
-    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     color: #d4af37; /* Changing to a visible color */
 }
 
@@ -73,6 +93,7 @@ body {
     cursor: pointer;
     border-radius: 5px;
     font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 .pirate-button:hover {
@@ -87,19 +108,34 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 10px;
 }
 
 th, td {
     padding: 10px;
     border: 1px solid #fff;
-    color: #d4af37; /* Changing to a visible color */
+    text-align: center;
+    color: #fff;
+}
+
+th {
+    background-color: #d4af37;
+    color: #000;
 }
 
 tr.highlight {
-    background-color: #55524a;
-    color: #000000; /* Making sure the font color is visible */}
+    background-color: rgba(212, 175, 55, 0.5);
+}
 
 @media (max-width: 600px) {
+    #dashboardContainer {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
     .pirate-theme {
         padding: 10px;
     }
@@ -111,6 +147,10 @@ tr.highlight {
 
     th, td {
         padding: 8px;
+    }
+
+    table {
+        font-size: 0.9rem;
     }
 }
 

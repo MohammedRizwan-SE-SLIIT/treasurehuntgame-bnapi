@@ -21,7 +21,8 @@
         <div id="stats">
             <p>Level: <span id="level">1</span></p>
             <p>Hearts: <span id="lives">4</span></p>
-            <p>Treasures Collected: <span id="treasure-collected">0</span></p>
+            <p>Treasures Collected: <span id="treasure-collected">0</span></p> 
+        
         </div>
         <div id="problemContainer">
             <img id="math-image" src="" alt="Math Problem">
@@ -67,18 +68,27 @@
             });
 
             const dashboardButton = document.getElementById('dashboardButton');
-            const confirmationModal = document.getElementById('confirmationModal');
+            if (dashboardButton) {
+                dashboardButton.addEventListener('click', function() {
+                    const confirmationModal = document.getElementById('confirmationModal');
+                    confirmationModal.style.display = 'block';
+                });
+            } else {
+                console.error("dashboardButton element not found.");
+            }
+
             const closeButton = document.querySelector('.close-button');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    const confirmationModal = document.getElementById('confirmationModal');
+                    confirmationModal.style.display = 'none';
+                });
+            } else {
+                console.error("closeButton element not found.");
+            }
+
             const confirmYes = document.getElementById('confirmYes');
             const confirmNo = document.getElementById('confirmNo');
-
-            dashboardButton.addEventListener('click', function() {
-                confirmationModal.style.display = 'block';
-            });
-
-            closeButton.addEventListener('click', function() {
-                confirmationModal.style.display = 'none';
-            });
 
             confirmYes.addEventListener('click', function() {
                 window.location.href = "../html/dashboard.html";

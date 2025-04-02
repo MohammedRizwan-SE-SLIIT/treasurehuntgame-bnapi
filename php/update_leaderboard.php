@@ -1,65 +1,54 @@
 <?php
-session_start();
+
+require_once __DIR__ . '/../config.php';
+require_once '../vendor/autoload.php';
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "treasurehunt";
-
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-
-if ($conn->connect_error) {
-    die(json_encode(['success' => false, 'error' => 'Database connection failed']));
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
 }
 
-$response = ['success' => false];
-
-// Log actions in the audit_log table
-function logAction($conn, $userId, $action, $details, $gameId = null, $levelId = null) {
-    $stmt = $conn->prepare("INSERT INTO audit_log (user_id, action, details, game_id, level_id) VALUES (?, ?, ?, ?, ?)");
-    if ($stmt) {
-        $stmt->bind_param("issii", $userId, $action, $details, $gameId, $levelId);
-        $stmt->execute();
-    }
+$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Authentication required.']);
+    exit;
 }
+
+$jwt = $matches[1];
 
 try {
-    if (empty($_SESSION['user_id'])) {
-        throw new Exception('Authentication required');
+    $decoded = JWT::decode($jwt, new Key(JWT_SECRET_KEY, 'HS256'));
+    $userId = $decoded->userId;
+
+    $highestLevel = $_POST['highestLevel'] ?? null;
+    $totalTreasures = $_POST['totalTreasures'] ?? null;
+
+    if (!$highestLevel || !$totalTreasures) {
+        throw new Exception('Invalid input data.');
     }
 
-    $userId = $_SESSION['user_id'];
-    $highestLevel = $_POST['highestLevel'];
-    $totalTreasures = $_POST['totalTreasures'];
+    $stmt = $pdo->prepare("
+        INSERT INTO leaderboard (user_id, highest_level, total_treasures, last_updated)
+        VALUES (?, ?, ?, NOW())
+        ON DUPLICATE KEY UPDATE
+        highest_level = GREATEST(highest_level, VALUES(highest_level)),
+        total_treasures = GREATEST(total_treasures, VALUES(total_treasures)),
+        last_updated = NOW()
+    ");
+    $stmt->execute([$userId, $highestLevel, $totalTreasures]);
 
-    // Update leaderboard
-    $stmt = $conn->prepare("INSERT INTO leaderboard (user_id, highest_level, total_treasures, last_updated) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE highest_level = GREATEST(highest_level, VALUES(highest_level)), total_treasures = GREATEST(total_treasures, VALUES(total_treasures)), last_updated = NOW()");
-    if (!$stmt) {
-        throw new Exception('Prepare statement failed: ' . $conn->error);
-    }
-    $stmt->bind_param("iii", $userId, $highestLevel, $totalTreasures);
-    if ($stmt->execute()) {
-        $response['success'] = true;
-
-        // Update ranks in the leaderboard
-        $conn->query("SET @rank = 0");
-        $conn->query("UPDATE leaderboard SET rank = (@rank := @rank + 1) ORDER BY total_treasures DESC, highest_level DESC, last_updated ASC");
-    } else {
-        throw new Exception('Update failed: ' . $stmt->error);
-    }
-
-    // Log actions
-    logAction($conn, $userId, 'GAME_START', 'User started a new game', 101, null);
-    logAction($conn, $userId, 'TREASURE_COLLECTED', 'User collected 5 treasures', 101, 1);
-    logAction($conn, $userId, 'GAME_END', 'User finished the game', 101, null);
-
+    echo json_encode(['success' => true]);
 } catch (Exception $e) {
-    $response['error'] = $e->getMessage();
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
-
-echo json_encode($response);
-$conn->close();
 ?>

@@ -71,29 +71,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
         fetch("http://localhost/treasurehuntgame-bnapi/php/auth.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "login", username, password })
         })
-            .then((res) => {
-                if (!res.ok) {
-                    return res.text().then((text) => {
-                        console.error("Server response:", text);
-                        throw new Error("Server error");
-                    });
-                }
-                return res.json();
-            })
+            .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
                     localStorage.setItem("jwt", data.token); // Store JWT in local storage
-                    localStorage.setItem("guestMode", "false");
+                    localStorage.setItem("guestMode", "false"); // Set guestMode to false
                     localStorage.setItem("username", username);
                     showMessage(`Welcome back, ${username}!`, "success");
                     setTimeout(() => {
-                        window.location.href = "http://localhost/treasurehuntgame-bnapi/html/game.html"; // Redirect to game page
+                        window.location.href = "../html/dashboard.html"; // Redirect to dashboard
                     }, 1000);
                 } else {
                     showMessage("Invalid username or password.", "error");
@@ -104,7 +95,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 showMessage("An error occurred. Please try again.", "error");
             });
     });
-
 
     document.getElementById("register-btn").addEventListener("click", (event) => {
         event.preventDefault(); 

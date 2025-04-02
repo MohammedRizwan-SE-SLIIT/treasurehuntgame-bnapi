@@ -1,13 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Load game state from Session Storage
+    let level = parseInt(sessionStorage.getItem("level")) || 1;
+    let lives = parseInt(sessionStorage.getItem("lives")) || 4;
+    let treasuresCollected = parseInt(sessionStorage.getItem("treasuresCollected")) || 0;
+
     // Game Variables
-    let level = 1;
-    let lives = 4;
     let timer;
     let baseTimeLeft = 60;
     let timeLeft = baseTimeLeft;
     let correctAnswers = 0;
     let totalAttempts = 0;
-    let treasuresCollected = 0;
     let isTrickyQuestion = false;
     let trickyAttempts = 0;
     let trickyTreasureValues = [4, 2, 1];
@@ -265,6 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (trickyAttempts > 0) {
             currentTreasureValue = trickyTreasureValues[trickyAttempts - 1];
         }
+
+        saveGameState(); // Save updated state
     }
 
     // Wrong Answer Handling
@@ -281,11 +285,17 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        if (lives === 0 && trickyAttempts >= 3) {
+            handleTrickyQuestionFailure(); // Handle game over after tricky question failure
+            return;
+        }
+
         if (!isTrickyQuestion) {
             resetTimer();
         }
 
         updateUI();
+        saveGameState(); // Save updated state
     }
 
     // Show Treasure Animation
@@ -312,7 +322,13 @@ document.addEventListener("DOMContentLoaded", () => {
         popup.classList.add("game-over-popup");
 
         const message = document.createElement("p");
-        message.textContent = `Game Over! 💀 You answered ${correctAnswers} out of ${totalAttempts} questions correctly. Your accuracy is ${(correctAnswers / totalAttempts * 100).toFixed(2)}%. Start over and see how far you can collect treasure! Arrr!`;
+        message.textContent = `Game Over! 💀 You answered ${correctAnswers} out of ${totalAttempts} questions correctly. Your accuracy is ${(correctAnswers / totalAttempts * 100).toFixed(2)}%.`;
+
+        const scoreMessage = document.createElement("p");
+        scoreMessage.textContent = `Your Score: Level ${level}, Treasures Collected: ${treasuresCollected}`;
+
+        const leaderboardMessage = document.createElement("p");
+        leaderboardMessage.textContent = "Checking if you've beaten your previous record...";
 
         const restartButton = document.createElement("button");
         restartButton.textContent = "Start Over";
@@ -323,14 +339,100 @@ document.addEventListener("DOMContentLoaded", () => {
         const dashboardButton = document.createElement("button");
         dashboardButton.textContent = "Go to Dashboard";
         dashboardButton.addEventListener("click", () => {
-            updateLeaderboard();
             window.location.href = "../html/dashboard.html";
         });
 
         popup.appendChild(message);
+        popup.appendChild(scoreMessage);
+        popup.appendChild(leaderboardMessage);
         popup.appendChild(restartButton);
         popup.appendChild(dashboardButton);
         document.body.appendChild(popup);
+
+        // Check and update leaderboard
+        checkAndUpdateLeaderboard(level, treasuresCollected, leaderboardMessage);
+    }
+
+    // Check and Update Leaderboard
+    function checkAndUpdateLeaderboard(level, treasuresCollected, leaderboardMessage) {
+        const jwtToken = localStorage.getItem("jwt"); // Retrieve JWT token
+
+        if (!jwtToken) {
+            leaderboardMessage.textContent = "You are playing as a guest. Login to save your score!";
+            return;
+        }
+
+        fetch("../php/get_dashboard_data.php", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${jwtToken}`,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch leaderboard data.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const previousLevel = data.userProgress.highest_level || 0;
+                    const previousTreasures = data.userProgress.total_treasures || 0;
+
+                    if (level > previousLevel || (level === previousLevel && treasuresCollected > previousTreasures)) {
+                        // Update leaderboard if the current score is better
+                        updateLeaderboard(level, treasuresCollected);
+                        leaderboardMessage.textContent = "Congratulations! You've beaten your previous record. Your score has been updated on the leaderboard.";
+                    } else {
+                        // Show current score without updating leaderboard
+                        leaderboardMessage.textContent = "Your score is lower than your previous record. It will not be updated on the leaderboard.";
+                    }
+                } else {
+                    leaderboardMessage.textContent = "Error fetching leaderboard data.";
+                }
+            })
+            .catch(error => {
+                console.error("Error checking leaderboard:", error);
+                leaderboardMessage.textContent = "Error checking leaderboard. Please try again later.";
+            });
+    }
+
+    // Update Leaderboard
+    function updateLeaderboard(level, treasuresCollected) {
+        const jwtToken = localStorage.getItem("jwt"); // Retrieve JWT token
+
+        fetch("../php/update_leaderboard.php", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${jwtToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ highestLevel: level, totalTreasures: treasuresCollected })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to update leaderboard.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    console.error("Error updating leaderboard:", data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error updating leaderboard:", error);
+            });
+    }
+
+    // Handle Tricky Question Failure
+    function handleTrickyQuestionFailure() {
+        if (trickyAttempts >= 3) {
+            playSound("game-over-sound");
+            showGameOverPopup();
+            answerInput.disabled = true; // Disable input box
+        }
     }
 
     // Show Login Prompt for Guests
@@ -406,13 +508,19 @@ document.addEventListener("DOMContentLoaded", () => {
         treasureCollectedDisplay.textContent = `Treasures Collected: ${treasuresCollected}`;
     }
 
-    // Update UI After Losing a Heart or Progressing a Level
-    function updateUI() {
-        levelInfo.textContent = `Level: ${level}`;
-        livesDisplay.textContent = `Hearts: ${'❤'.repeat(Math.max(lives, 0))}`; // Prevent negative heart display
-        treasureCollectedDisplay.textContent = `Treasures Collected: ${treasuresCollected}`;
-    }
+    // // Update UI After Losing a Heart or Progressing a Level
+    // function updateUI() {
+    //     levelInfo.textContent = `Level: ${level}`;
+    //     livesDisplay.textContent = `Hearts: ${'❤'.repeat(Math.max(lives, 0))}`; // Prevent negative heart display
+    //     treasureCollectedDisplay.textContent = `Treasures Collected: ${treasuresCollected}`;
+    // }
 
+  // Update UI After Losing a Heart or Progressing a Level
+  function updateUI() {
+    levelInfo.textContent = ` ${level}`;
+    livesDisplay.textContent = ` ${'❤'.repeat(Math.max(lives, 0))}`; // Prevent negative heart display
+    treasureCollectedDisplay.textContent = ` ${treasuresCollected}`;
+}
     // Play Sound Effects
     function playSound(soundId) {
         const sound = document.getElementById(soundId);
@@ -423,6 +531,20 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             console.error('Sound element not found or invalid:', soundId);
         }
+    }
+
+    // Save game state to Session Storage
+    function saveGameState() {
+        sessionStorage.setItem("level", level);
+        sessionStorage.setItem("lives", lives);
+        sessionStorage.setItem("treasuresCollected", treasuresCollected);
+    }
+
+    // Reset game state on game over
+    function resetGameState() {
+        sessionStorage.removeItem("level");
+        sessionStorage.removeItem("lives");
+        sessionStorage.removeItem("treasuresCollected");
     }
 
     // Initialize Game on Page Load
