@@ -51,7 +51,7 @@ try {
     }
 
     // Fetch user data
-    $stmt = $pdo->prepare("SELECT username, display_name, avatar_url FROM users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT username, avatar_url FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -68,9 +68,17 @@ try {
     $stmt->execute([$userId]);
     $userProgress = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    if (!$userProgress) {
+        // Default values if no progress is found
+        $userProgress = [
+            'highest_level' => 1,
+            'total_treasures' => 0
+        ];
+    }
+
     // Fetch leaderboard data
     $stmt = $pdo->query("
-        SELECT u.username, u.display_name, l.highest_level, l.total_treasures, l.rank
+        SELECT u.username, l.highest_level, l.total_treasures, l.rank
         FROM leaderboard l
         JOIN users u ON l.user_id = u.id
         ORDER BY l.rank ASC, l.total_treasures DESC, l.highest_level DESC, l.last_updated ASC
