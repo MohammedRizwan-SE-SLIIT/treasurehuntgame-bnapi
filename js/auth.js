@@ -149,10 +149,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
  
     document.getElementById("guest-btn").addEventListener("click", () => {
-        localStorage.setItem("guestMode", "true");
+        localStorage.setItem("guestMode", "true"); // Set guestMode to true
+        localStorage.setItem("username", "Guest"); // Set username to Guest
+        localStorage.setItem("avatarUrl", "../assets/default-avatar.png"); // Set default avatar
         showMessage("Welcome to Guest Mode!", "success");
         setTimeout(() => {
-            window.location.href = "http://localhost/treasurehuntgame-bnapi/html/game.html"; // Redirect to game page
+            window.location.href = "../html/game.html"; // Redirect directly to the game page
         }, 1000);
     });
 

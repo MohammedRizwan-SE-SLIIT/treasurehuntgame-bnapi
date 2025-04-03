@@ -13,18 +13,19 @@ body {
     overflow: hidden; /* Prevent scrolling */
 }
 
+/* Profile Container */
 #profileContainer {
     position: absolute;
     top: 20px;
     right: 20px;
-    background-color: rgba(0, 0, 0, 0.7); /* Bckg color for the profile containr */
-    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.8); /* Slightly darker background */
+    padding: 15px; /* Increased padding for better spacing */
     border-radius: 10px; /* Rounded corners */
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow for better visibility */
-    border: 2px solid #d4af37; /* Add border to the container */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Enhanced shadow */
+    border: 2px solid #d4af37; /* Gold border for pirate theme */
 }
 
 #profile {
@@ -33,17 +34,34 @@ body {
     align-items: center;
 }
 
+/* Profile Avatar */
 #avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%; 
-    margin-bottom: 5px;
-    border: 2px solid #d4af37; /* Adding border to the avatar */
+    width: 60px; /* Increased size for better visibility */
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 10px; /* Increased spacing below avatar */
+    border: 2px solid #d4af37; /* Gold border */
 }
 
 #pirateName {
     font-size: 1.2em;
-    color: #d4af37; /* Changing to a visible color */
+    color: #fff; /* White text color for contrast */
+    font-weight: bold;
+}
+
+/* Logout Button */
+#logoutButton {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #d9534f; /* Red logout button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#logoutButton:hover {
+    background-color: #c9302c; /* Darker red on hover */
 }
 
 #dashboardContainer {

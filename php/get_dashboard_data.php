@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/config.php'; 
+require_once __DIR__ . '/../config.php';
 require_once '../vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -13,13 +13,12 @@ header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
 session_start();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
-// Ensure PDO is available
+
 if (!isset($pdo)) {
     error_log("Database connection (PDO) is not available.");
     http_response_code(500);
@@ -37,43 +36,34 @@ if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
 }
 
 $jwt = $matches[1];
-error_log("JWT Token: " . $jwt); // Log the JWT token
 
 try {
-
+    //jwt dec
     $decoded = JWT::decode($jwt, new Key(JWT_SECRET_KEY, 'HS256'));
-    error_log("Decoded JWT: " . json_encode($decoded)); 
-
-    // Get UID
     $userId = $decoded->userId ?? null;
+
     if (!$userId) {
         throw new Exception("Invalid JWT: User ID missing.");
     }
 
-    // Fetch user data
-    $stmt = $pdo->prepare("SELECT username, avatar_url FROM users WHERE id = ?");
+    // Fetch user data and progress
+    $stmt = $pdo->prepare("
+        SELECT 
+            u.username,
+            MAX(up.level_id) AS highest_level,
+            SUM(up.treasures_collected) AS total_treasures,
+            l.rank
+        FROM users u
+        JOIN user_progress up ON u.id = up.user_id
+        LEFT JOIN leaderboard l ON u.id = l.user_id
+        WHERE u.id = ?
+        GROUP BY u.id
+    ");
     $stmt->execute([$userId]);
     $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$userData) {
         throw new Exception("User not found in the database.");
-    }
-
-    // Get user progress
-    $stmt = $pdo->prepare("
-        SELECT MAX(level_id) AS highest_level, SUM(treasures_collected) AS total_treasures
-        FROM user_progress
-        WHERE user_id = ?
-    ");
-    $stmt->execute([$userId]);
-    $userProgress = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$userProgress) {
-        // Default values if no progress is found
-        $userProgress = [
-            'highest_level' => 1,
-            'total_treasures' => 0
-        ];
     }
 
     // Fetch leaderboard data
@@ -86,11 +76,9 @@ try {
     ");
     $leaderboardData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Send success response
     echo json_encode([
         'success' => true,
         'userData' => $userData,
-        'userProgress' => $userProgress,
         'leaderboardData' => $leaderboardData
     ]);
 } catch (Exception $e) {

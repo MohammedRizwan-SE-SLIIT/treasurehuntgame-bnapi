@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/config.php';
-require_once '../vendor/autoload.php';
+require_once realpath(__DIR__ . '/../config.php');
+require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -24,21 +24,16 @@ if (!isset($pdo)) {
     exit;
 }
 
-// Retrieve JWT token from Authorization header or query parameter
+// Retrieve JWT token from Authorization header
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['Authorization'] ?? '';
-if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-    $jwt = $matches[1];
-} else {
-    // Fallback: Retrieve JWT token from query parameter
-    $jwt = $_GET['token'] ?? null;
-}
-
-if (!$jwt) {
-    error_log("Missing JWT token.");
+if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+    error_log("Missing or invalid Authorization header.");
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Authentication required.']);
     exit;
 }
+
+$jwt = $matches[1];
 
 try {
     // Decode JWT
@@ -51,32 +46,42 @@ try {
 
     // Parse input data
     $input = json_decode(file_get_contents('php://input'), true);
-    $highestLevel = $input['highestLevel'] ?? null;
-    $totalTreasures = $input['totalTreasures'] ?? null;
+    $currentLevel = $input['currentLevel'] ?? null;
+    $treasuresCollected = $input['treasuresCollected'] ?? null;
+    $totalAttempts = $input['totalAttempts'] ?? null;
+    $correctAnswers = $input['correctAnswers'] ?? null;
 
-    if ($highestLevel === null || $totalTreasures === null) {
+    if ($currentLevel === null || $treasuresCollected === null || $totalAttempts === null || $correctAnswers === null) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Invalid input: highestLevel and totalTreasures are required.']);
+        echo json_encode(['success' => false, 'error' => 'Invalid input: All fields are required.']);
         exit;
     }
 
-    // Update leaderboard data
+    // Insert or update user progress
     $stmt = $pdo->prepare("
-        INSERT INTO leaderboard (user_id, highest_level, total_treasures, last_updated)
-        VALUES (:user_id, :highest_level, :total_treasures, NOW())
-        ON DUPLICATE KEY UPDATE
-            highest_level = GREATEST(highest_level, VALUES(highest_level)),
-            total_treasures = GREATEST(total_treasures, VALUES(total_treasures)),
-            last_updated = NOW()
+        INSERT INTO user_progress 
+        (user_id, level_id, treasures_collected, attempts, correct_answers)
+        VALUES (?, ?, ?, ?, ?)
     ");
     $stmt->execute([
-        ':user_id' => $userId,
-        ':highest_level' => $highestLevel,
-        ':total_treasures' => $totalTreasures
+        $userId,
+        $currentLevel,
+        $treasuresCollected,
+        $totalAttempts,
+        $correctAnswers
     ]);
 
-    // Success response
-    echo json_encode(['success' => true, 'message' => 'Leaderboard updated successfully.']);
+    // Update leaderboard directly
+    $stmt = $pdo->prepare("
+        UPDATE leaderboard SET
+        highest_level = GREATEST(highest_level, ?),
+        total_treasures = total_treasures + ?,
+        last_updated = NOW()
+        WHERE user_id = ?
+    ");
+    $stmt->execute([$currentLevel, $treasuresCollected, $userId]);
+
+    echo json_encode(['success' => true, 'message' => 'Leaderboard and progress updated successfully.']);
 } catch (Exception $e) {
     error_log("Error in update_leaderboard.php: " . $e->getMessage());
     http_response_code(500);

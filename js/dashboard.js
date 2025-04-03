@@ -12,7 +12,7 @@ function renderLeaderboard(data) {
     paginatedData.forEach((entry, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${entry.rank || index + 1}</td> <!-- Use rank if available, otherwise fallback to index -->
+            <td>${entry.rank || start + index + 1}</td> <!-- Use rank if available -->
             <td>${entry.username}</td>
             <td>${entry.highest_level}</td>
             <td>${entry.total_treasures}</td>
@@ -39,40 +39,62 @@ function setupPagination(data) {
     }
 }
 
-function fetchDashboardData() {
-    const jwtToken = localStorage.getItem('jwt'); // Retrieve the JWT token from localStorage
-
-    if (!jwtToken) {
-        console.error('Authentication required: No JWT token found.');
-        showAuthError("You are not logged in. Please log in to access the dashboard.");
-        return;
-    }
-
-    fetch('../php/get_dashboard_data.php', {
+function fetchLeaderboard() {
+    fetch('../php/get_leaderboard.php', {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${jwtToken}`, // Include the JWT token in the Authorization header
             'Content-Type': 'application/json'
         }
     })
         .then(response => response.json())
         .then(data => {
+            console.log('Leaderboard Data:', data); // Log the response for debugging
             if (data.success) {
-                // Render leaderboard
                 renderLeaderboard(data.leaderboardData);
                 setupPagination(data.leaderboardData);
-
-                // Update user stats
-                document.getElementById('username').textContent = data.userData.username || 'Guest';
-                document.getElementById('highestLevel').textContent = data.userProgress.highest_level || 1;
-                document.getElementById('totalTreasures').textContent = data.userProgress.total_treasures || 0;
             } else {
-                console.error('Error fetching dashboard data:', data.error);
+                console.error('Error fetching leaderboard data:', data.error);
+                alert("Failed to fetch leaderboard data. Please try again.");
             }
         })
         .catch(error => {
-            console.error('Error fetching dashboard data:', error);
+            console.error('Error fetching leaderboard data:', error);
+            alert("An error occurred while fetching leaderboard data. Please try again.");
         });
+}
+
+function refreshLeaderboard() {
+    fetch('../php/get_leaderboard.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderLeaderboard(data.leaderboardData);
+                setupPagination(data.leaderboardData);
+            } else {
+                console.error('Error refreshing leaderboard:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error refreshing leaderboard:', error);
+        });
+}
+
+// Example: Trigger leaderboard refresh after a score update
+document.addEventListener('scoreUpdated', refreshLeaderboard);
+
+function updateProfileContainer() {
+    const guestMode = localStorage.getItem('guestMode') === 'true';
+    const username = guestMode ? 'Guest' : localStorage.getItem('username') || 'Guest';
+    const avatarUrl = guestMode
+        ? '../assets/default-avatar.png'
+        : localStorage.getItem('avatarUrl') || '../assets/default-avatar.png';
+
+    document.getElementById('pirateName').textContent = username;
+    document.getElementById('avatar').src = avatarUrl;
+}
+
+function startNewGame() {
+    window.location.href = "../html/game.html"; // Redirect to game.html
 }
 
 function logout() {
@@ -81,6 +103,15 @@ function logout() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchDashboardData();
+    updateProfileContainer(); // Update profile container from localStorage
+    fetchLeaderboard(); // Fetch leaderboard data
+
+    document.getElementById('logoutButton').addEventListener('click', logout);
+
+    // Add event listener for the "Start New Game" button
+    const startGameButton = document.getElementById('startGameButton');
+    if (startGameButton) {
+        startGameButton.addEventListener('click', startNewGame);
+    }
 });
 

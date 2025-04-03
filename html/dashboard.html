@@ -13,14 +13,10 @@
             <img id="avatar" src="../assets/default-avatar.png" alt="Avatar">
             <span id="pirateName">Guest</span>
         </div>
+        <button id="logoutButton" class="pirate-button">Logout</button>
     </div>
     <div id="dashboardContainer" class="pirate-theme">
         <h1>🏴‍☠️ Pirate's Dashboard</h1>
-        <div id="userStats" class="pirate-box">
-            <p><strong>Username:</strong> <span id="username"></span></p>
-            <p><strong>Highest Level:</strong> <span id="highestLevel"></span></p>
-            <p><strong>Treasures Collected:</strong> <span id="totalTreasures"></span></p>
-        </div>
         <div id="leaderboard" class="pirate-box">
             <h2>🏆 Leaderboard</h2>
             <div class="leaderboard-container">
@@ -40,8 +36,10 @@
             </div>
             <div id="pagination" class="pagination-container"></div>
         </div>
-        <button class="pirate-button" onclick="startGame()">⚔️ Start New Game</button>
-        <button class="pirate-button" onclick="logout()">🚪 Logout</button>
+        <!-- Start New Game Button -->
+        <div class="start-game-container">
+            <button id="startGameButton" class="pirate-button">⚔️ Start New Game</button>
+        </div>
     </div>
 
     <script src="../js/dashboard.js"></script>
