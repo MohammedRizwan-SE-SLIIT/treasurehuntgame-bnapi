@@ -68,8 +68,14 @@
     <script src="../js/avatar-selector.js"></script>
     <script src="../js/auth.js"></script>
     <script>
-        // Directly call the function after scripts are loaded
-        generateRandomAvatars(4);
+        document.addEventListener('DOMContentLoaded', function () {
+            // Call generateRandomAvatars after the DOM is fully loaded
+            if (typeof generateRandomAvatars === 'function') {
+                generateRandomAvatars(4); // Generate 4 random avatars
+            } else {
+                console.error("generateRandomAvatars function is not defined.");
+            }
+        });
     </script>
 </body>
 </html>

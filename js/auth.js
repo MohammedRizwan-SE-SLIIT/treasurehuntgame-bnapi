@@ -82,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     localStorage.setItem("jwt", data.token); // Store JWT in local storage
                     localStorage.setItem("guestMode", "false"); // Set guestMode to false
                     localStorage.setItem("username", username);
+                    localStorage.setItem("avatarUrl", data.avatarUrl); // Store avatar URL
                     showMessage(`Welcome back, ${username}!`, "success");
                     setTimeout(() => {
                         window.location.href = "../html/dashboard.html"; // Redirect to dashboard
@@ -133,6 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     localStorage.setItem("jwt", data.token); // Store JWT in local storage
                     localStorage.setItem("guestMode", "false");
                     localStorage.setItem("username", username);
+                    localStorage.setItem("avatarUrl", avatarUrl); // Store avatar URL
                     showMessage(`Registration successful! Welcome, ${username}.`, "success");
                     setTimeout(() => {
                         switchTab('login'); // Switch to login tab after registration

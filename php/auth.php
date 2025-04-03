@@ -60,17 +60,22 @@ function verifyJWT($token) {
 }
 
 function registerUser($pdo, $username, $email, $password, $avatarUrl) {
-    $salt = bin2hex(random_bytes(16)); // Generate a random salt
-    $hashedPassword = password_hash($password . $salt, PASSWORD_DEFAULT); // Hash the password with the salt
-    $passwordWithSalt = $salt . $hashedPassword; // Concatenate salt and hashed password
+    try {
+        $salt = bin2hex(random_bytes(16)); // Generate a random salt
+        $hashedPassword = password_hash($password . $salt, PASSWORD_DEFAULT); // Hash the password with the salt
+        $passwordWithSalt = $salt . $hashedPassword; // Concatenate salt and hashed password
 
-    $stmt = $pdo->prepare("
-        INSERT INTO users (username, email, password, avatar_url) 
-        VALUES (?, ?, ?, ?)
-    ");
-    $stmt->execute([$username, $email, $passwordWithSalt, $avatarUrl]);
-    error_log("New user registered: $username");
-    return $pdo->lastInsertId();
+        $stmt = $pdo->prepare("
+            INSERT INTO users (username, email, password, avatar_url) 
+            VALUES (?, ?, ?, ?)
+        ");
+        $stmt->execute([$username, $email, $passwordWithSalt, $avatarUrl]);
+        error_log("New user registered: $username");
+        return $pdo->lastInsertId();
+    } catch (PDOException $e) {
+        error_log("Error during user registration: " . $e->getMessage());
+        throw new Exception("Database error: " . $e->getMessage());
+    }
 }
 
 function verifyPassword($pdo, $username, $password) {

@@ -40,18 +40,23 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.style.setProperty("--primary-color", randomColor.primary);
     document.documentElement.style.setProperty("--secondary-color", randomColor.secondary);
 
-    // Theme Toggle Logic
+    // Inline Dark Mode toggle creation
     const themeToggleButton = document.createElement("button");
+    themeToggleButton.id = "themeToggle";
     themeToggleButton.textContent = "Dark Mode: Disabled";
-    themeToggleButton.style.position = "absolute";
-    themeToggleButton.style.top = "10px";
-    themeToggleButton.style.left = "10px";
-    themeToggleButton.style.padding = "10px";
-    themeToggleButton.style.background = "rgba(0, 0, 0, 0.5)";
-    themeToggleButton.style.color = "#fff";
+    themeToggleButton.style.position = "fixed";
+    themeToggleButton.style.bottom = "20px";
+    themeToggleButton.style.right = "20px";
+    themeToggleButton.style.padding = "10px 15px";
+    themeToggleButton.style.background = "var(--button-background)";
+    themeToggleButton.style.color = "var(--button-text-color)";
     themeToggleButton.style.border = "none";
     themeToggleButton.style.borderRadius = "5px";
     themeToggleButton.style.cursor = "pointer";
+    themeToggleButton.style.fontSize = "1rem";
+    themeToggleButton.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.2)";
+    themeToggleButton.style.transition = "transform 0.2s, box-shadow 0.2s";
+    themeToggleButton.style.zIndex = "1000";
     document.body.appendChild(themeToggleButton);
 
     const currentTheme = localStorage.getItem("theme") || "light";
@@ -248,6 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
         level++;
         correctAnswers++;
         treasuresCollected += currentTreasureValue;
+        sessionStorage.setItem('treasuresCollected', treasuresCollected);
+        document.getElementById('treasure-collected').textContent = treasuresCollected;
+        sessionStorage.setItem('level', level);
+        document.getElementById('level').textContent = level;
         playSound('correct-sound');
         showTreasureAnimation();
         updateUI(); // Update UI to reflect new level
@@ -277,6 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (lives > 0) {
             lives--;
         }
+        sessionStorage.setItem('lives', lives);
+        document.getElementById('lives').textContent = lives;
         feedbackMessage.textContent = `Incorrect! ${lives} hearts left. 💔`;
 
         if (lives === 0 && trickyAttempts < 3) {
@@ -579,4 +590,37 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmationModal.style.display = "none"; // Hide modal if clicked outside
         }
     };
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const username = localStorage.getItem('username') || 'Guest';
+    const avatarUrl = localStorage.getItem('avatarUrl') || '../assets/default-avatar.png';
+
+    // Update profile container
+    document.getElementById('pirateName').innerText = username;
+    document.getElementById('avatar').src = avatarUrl;
+
+    // Logout button functionality
+    document.getElementById('logoutButton').addEventListener('click', function () {
+        localStorage.clear(); // Clear all localStorage data
+        sessionStorage.clear(); // Clear session storage
+        window.location.href = "../html/auth.html"; // Redirect to login page
+    });
+
+    // Dashboard button functionality
+    const dashboardButton = document.getElementById('dashboardButton');
+    dashboardButton.addEventListener('click', function () {
+        sessionStorage.clear(); // Clear session storage when navigating back to the dashboard
+        window.location.href = "../html/dashboard.html"; // Redirect to dashboard
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) { // Add null check
+        themeToggle.addEventListener('click', function () {
+            document.body.classList.toggle('dark-mode');
+        });
+    } else {
+        console.error("Theme toggle button not found.");
+    }
 });

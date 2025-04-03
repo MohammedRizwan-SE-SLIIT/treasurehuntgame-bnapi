@@ -21,8 +21,7 @@
         <div id="stats">
             <p>Level: <span id="level">1</span></p>
             <p>Hearts: <span id="lives">4</span></p>
-            <p>Treasures Collected: <span id="treasure-collected">0</span></p> 
-        
+            <p>Treasures Collected: <span id="treasure-collected">0</span></p>
         </div>
         <div id="problemContainer">
             <img id="math-image" src="" alt="Math Problem">
@@ -39,7 +38,6 @@
         <audio id="game-over-sound" src="../assets/game-over.mp3"></audio>
     </div>
 
-  
     <div id="confirmationModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -50,66 +48,5 @@
     </div>
 
     <script src="../js/game.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const username = localStorage.getItem('username');
-            const displayName = username || 'Guest';
-            const avatarUrl = username 
-                ? `../assets/avatars/${username}.png` // Example: Use a specific avatar for logged-in users
-                : '../assets/default-avatar.png';
-
-            document.getElementById('pirateName').innerText = displayName;
-            document.getElementById('avatar').src = avatarUrl;
-
-            document.getElementById('logoutButton').addEventListener('click', function() {
-                localStorage.removeItem('username');
-                localStorage.setItem('guestMode', 'true');
-                window.location.href = "../html/auth.html";
-            });
-
-            const dashboardButton = document.getElementById('dashboardButton');
-            if (dashboardButton) {
-                dashboardButton.addEventListener('click', function() {
-                    const confirmationModal = document.getElementById('confirmationModal');
-                    confirmationModal.style.display = 'block';
-                });
-            } else {
-                console.error("dashboardButton element not found.");
-            }
-
-            const closeButton = document.querySelector('.close-button');
-            if (closeButton) {
-                closeButton.addEventListener('click', function() {
-                    const confirmationModal = document.getElementById('confirmationModal');
-                    confirmationModal.style.display = 'none';
-                });
-            } else {
-                console.error("closeButton element not found.");
-            }
-
-            const confirmYes = document.getElementById('confirmYes');
-            const confirmNo = document.getElementById('confirmNo');
-
-            confirmYes.addEventListener('click', function() {
-                window.location.href = "../html/dashboard.html";
-            });
-
-            confirmNo.addEventListener('click', function() {
-                confirmationModal.style.display = 'none';
-            });
-
-            window.onclick = function(event) {
-                if (event.target === confirmationModal) {
-                    confirmationModal.style.display = 'none';
-                }
-            };
-
-            // Dark Mode Toggle
-            const themeToggle = document.getElementById('themeToggle');
-            themeToggle.addEventListener('click', function() {
-                document.body.classList.toggle('dark-mode');
-            });
-        });
-    </script>
 </body>
 </html>

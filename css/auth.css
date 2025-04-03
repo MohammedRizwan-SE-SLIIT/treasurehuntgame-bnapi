@@ -186,6 +186,34 @@ input[type="text"], input[type="password"] {
     padding-right: 50px; /* Ensure consistent padding for all input fields */
 }
 
+/* Avatar Grid */
+#avatar-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.avatar.selected {
+    border-color: #d4af37; /* Gold border for selected avatar */
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+}
+
 @media (max-width: 600px) {
     .auth-container {
         padding: 15px;

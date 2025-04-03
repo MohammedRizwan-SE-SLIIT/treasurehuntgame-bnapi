@@ -35,7 +35,7 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Game container with dynamic background */
@@ -59,19 +59,20 @@ h1 {
     font-size: 3.5rem;
     color: var(--text-color); /* Adapt font color to theme */
     margin-bottom: 20px;
-    text-shadow: none; /* Removed font shadow */
+    text-align: center;
 }
 
 p {
     font-family: 'Trebuchet MS', sans-serif;
     font-size: 1.2rem;
+    text-align: center;
 }
 
 /* Stats section with dynamic colors */
 #stats {
     display: flex;
     justify-content: space-around;
-    width: 80%;
+    width: 100%;
     margin-bottom: 20px;
     padding: 10px;
     background: var(--container-background); /* Adapt background to theme */
@@ -94,16 +95,17 @@ p {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 600px;
 }
 
 /* Dynamic border and shadow for images */
 #math-image {
     border: 2px solid var(--primary-color);
     box-shadow: 0 0 10px var(--primary-color);
-    max-width: 300px;
-    max-height: 200px;
+    max-width: 100%;
+    height: auto;
     margin-bottom: 20px;
-    background-color: #ffb3d9;
 }
 
 #math-question {
@@ -121,7 +123,8 @@ p {
 
 /* Input and button styles */
 input[type="text"] {
-    width: 250px;
+    width: 100%;
+    max-width: 300px;
     padding: 10px;
     margin-top: 10px;
     border-radius: 5px;
@@ -156,7 +159,7 @@ button:hover {
     font-size: 1.5rem;
     color: var(--text-color); /* Adapt font color to theme */
     margin-top: 20px;
-    text-shadow: none; /* Removed font shadow */
+    text-align: center;
 }
 
 /* Feedback messages */
@@ -167,6 +170,7 @@ button:hover {
     margin-top: 20px;
     border-radius: 10px;
     color: var(--text-color); /* Adapt text color to theme */
+    text-align: center;
 }
 
 #feedback-message.success {
@@ -187,10 +191,11 @@ button:hover {
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center content horizontally */
-    justify-content: center; /* Center content vertically */
+    align-items: center;
+    justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     border: 2px solid #fff;
+    max-width: 150px; /* Limit the width for better responsiveness */
 }
 
 #profile img {
@@ -205,6 +210,7 @@ button:hover {
     font-size: 1.2rem;
     color: #fff;
     text-align: center;
+    word-wrap: break-word; /* Ensure long names wrap properly */
 }
 
 /* Modal with dynamic colors */
@@ -231,8 +237,30 @@ button:hover {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Dark Mode Toggle Button */
+.theme-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background: var(--button-background);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 1000;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
 /* Responsive Design */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     h1 {
         font-size: 2.5rem;
     }
@@ -256,5 +284,87 @@ button:hover {
 
     button {
         width: 100%;
+    }
+
+    #problemContainer {
+        padding: 15px;
+    }
+
+    #profileContainer {
+        top: 10px;
+        right: 10px;
+        padding: 8px;
+        max-width: 120px; /* Reduce width for smaller screens */
+    }
+
+    #profile img {
+        width: 50px;
+        height: 50px;
+    }
+
+    #pirateName {
+        font-size: 1rem; /* Reduce font size for smaller screens */
+    }
+
+    .theme-toggle {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    #stats {
+        width: 100%;
+        padding: 10px;
+    }
+
+    #problemContainer {
+        padding: 10px;
+    }
+
+    input[type="text"] {
+        font-size: 0.9rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+    }
+
+    #timer {
+        font-size: 1.2rem;
+    }
+
+    #feedback-message {
+        font-size: 1.2rem;
+    }
+
+    #profileContainer {
+        top: 5px;
+        right: 5px;
+        padding: 5px;
+        max-width: 100px; /* Further reduce width for very small screens */
+    }
+
+    #profile img {
+        width: 40px;
+        height: 40px;
+    }
+
+    #pirateName {
+        font-size: 0.9rem; /* Further reduce font size */
+    }
+
+    .theme-toggle {
+        bottom: 5px;
+        right: 5px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
     }
 }
