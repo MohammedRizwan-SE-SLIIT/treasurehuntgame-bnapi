@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/config.php'; // Use the existing config.php for database connection
+require_once __DIR__ . '/../config.php'; // Ensure config.php is included
 require_once '../vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -26,7 +26,7 @@ session_start();
 global $pdo;
 
 if (!isset($pdo)) {
-    error_log("Database connection (PDO) is not available.");
+    error_log("Database connection (PDO) is not available in auth.php.");
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Server error: Database connection not available.']);
     exit;
