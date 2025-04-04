@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Load game state from Session Storage
+
     let level = parseInt(sessionStorage.getItem("level")) || 1;
     let lives = parseInt(sessionStorage.getItem("lives")) || 4;
     let treasuresCollected = parseInt(sessionStorage.getItem("treasuresCollected")) || 0;
@@ -82,14 +82,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error('Invalid API response');
             }
 
-            // Show the image and hide the div for regular questions
+           
             const mathImage = document.getElementById("math-image");
             const mathQuestion = document.getElementById("math-question");
             mathImage.style.display = "block";
             mathQuestion.style.display = "none";
 
             mathImage.src = data.question; // Set the question image URL
-            mathImage.dataset.answer = data.solution; // Store the correct answer in the dataset
+            mathImage.dataset.answer = data.solution; //  correct answer in the dataset
 
             // Reset timer for the new problem
             resetTimer();
@@ -112,14 +112,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
     }
 
-    // Generate a tricky math question using the Basic Calculation API
+   
     async function generateTrickyMathQuestion() {
         try {
-            // Randomly select an operation
+            // operation
             const operations = ['add', 'subtract', 'multiply', 'divide'];
             const operation = operations[Math.floor(Math.random() * operations.length)];
 
-            // Generate random numbers for the operation
+            // Generate random number
             const num1 = Math.floor(Math.random() * 100) + 1;
             const num2 = Math.floor(Math.random() * 100) + 1;
 
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     function handleAnswerSubmission() {
-        const playerAnswer = answerInput.value.trim(); // Trim whitespace from the input
+        const playerAnswer = answerInput.value.trim();
         const correctAnswer = isTrickyQuestion
             ? document.getElementById("math-question").dataset.answer
             : questionImage.dataset.answer;
@@ -246,7 +246,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Prevent progression for guest users beyond level 2
         if (guestMode && level >= 2) {
             showLoginPrompt();
-            return; // Stop further progression
+            return; // Stop from proceeding
+            //  further
         }
 
         feedbackMessage.textContent = "Correct! 🎉 Treasure unlocked!";
@@ -280,7 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
         saveGameState(); // Save updated state
     }
 
-    // Wrong Answer Handling
+    
     function handleWrongAnswer() {
         playSound('wrong-sound');
         if (lives > 0) {
@@ -481,7 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modalOverlay.appendChild(modalContent);
         document.body.appendChild(modalOverlay);
 
-        // Add event listener to login button
+        
         document.getElementById("loginButton").addEventListener("click", () => {
             window.location.href = "../html/auth.html";
         });
@@ -519,12 +520,6 @@ document.addEventListener("DOMContentLoaded", () => {
         treasureCollectedDisplay.textContent = `Treasures Collected: ${treasuresCollected}`;
     }
 
-    // // Update UI After Losing a Heart or Progressing a Level
-    // function updateUI() {
-    //     levelInfo.textContent = `Level: ${level}`;
-    //     livesDisplay.textContent = `Hearts: ${'❤'.repeat(Math.max(lives, 0))}`; // Prevent negative heart display
-    //     treasureCollectedDisplay.textContent = `Treasures Collected: ${treasuresCollected}`;
-    // }
 
   // Update UI After Losing a Heart or Progressing a Level
   function updateUI() {
@@ -562,7 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchMathProblem(); 
     startTimer();
 
-    // Dashboard modal logic
+    // Dashboard modal 
     const dashboardButton = document.getElementById("dashboardButton");
     const confirmationModal = document.getElementById("confirmationModal");
     const closeButton = document.querySelector(".close-button");
@@ -574,7 +569,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     closeButton.addEventListener("click", () => {
-        confirmationModal.style.display = "none"; // Hide modal
+        confirmationModal.style.display = "none"; 
     });
 
     confirmYes.addEventListener("click", () => {
@@ -582,12 +577,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     confirmNo.addEventListener("click", () => {
-        confirmationModal.style.display = "none"; // Hide modal
+        confirmationModal.style.display = "none"; 
     });
 
     window.onclick = (event) => {
         if (event.target === confirmationModal) {
-            confirmationModal.style.display = "none"; // Hide modal if clicked outside
+            confirmationModal.style.display = "none"; 
         }
     };
 });
@@ -596,25 +591,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const username = localStorage.getItem('username') || 'Guest';
     const avatarUrl = localStorage.getItem('avatarUrl') || '../assets/default-avatar.png';
 
-    // Update profile container
+    
     document.getElementById('pirateName').innerText = username;
     document.getElementById('avatar').src = avatarUrl;
 
-    // Logout button functionality
+
     document.getElementById('logoutButton').addEventListener('click', function () {
-        localStorage.clear(); // Clear all localStorage data
-        sessionStorage.clear(); // Clear session storage
-        window.location.href = "../html/auth.html"; // Redirect to login page
+        localStorage.clear(); 
+        sessionStorage.clear(); 
+        window.location.href = "../html/auth.html"; 
     });
 
-    // Dashboard button functionality
+   
     const dashboardButton = document.getElementById('dashboardButton');
     dashboardButton.addEventListener('click', function () {
-        sessionStorage.clear(); // Clear session storage when navigating back to the dashboard
-        window.location.href = "../html/dashboard.html"; // Redirect to dashboard
+        sessionStorage.clear(); 
+        window.location.href = "../html/dashboard.html"; 
     });
 
-    // Theme toggle functionality
+   
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) { // Add null check
         themeToggle.addEventListener('click', function () {
